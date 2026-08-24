@@ -52,18 +52,19 @@ Clinix comes pre-seeded with ready-to-use accounts for all 3 platform roles:
 
 ## Google Calendar Integration & Demo Testing
 
-Because Google OAuth 2.0 apps in development status require users to be explicitly registered under authorized test users:
+Because Google OAuth 2.0 applications in testing status require users to be explicitly registered under authorized test users:
 
-1. **Pre-Authorized Test Accounts in Google Cloud Console**:
-   - `anshsingh1762@gmail.com`
-   - `ayushkumari1762@gmail.com`
+1. **Demo Google Account for Reviewers & Evaluators**:
+   - **Google Email**: `clinix.demo.tester@gmail.com`
+   - **Password**: `ClinixDemoUser2026!`
 
 2. **How to Test Calendar Sync**:
-   - Sign in to the Patient Portal at `/patient`.
+   - Sign in to the Patient Portal at `/patient` (or Doctor Portal at `/doctor`).
    - Click **Sync Calendar** in the dashboard banner.
-   - Select one of the authorized test Google accounts above.
-   - When Google displays the standard development screen (*"Google hasn't verified this app"*), click **Advanced** -> **Go to Clinix (unsafe)** to grant calendar event access.
-   - You will be redirected to the confirmation screen (`/patient/calendar?status=connected`), and future appointments will automatically sync to that Google Calendar.
+   - Sign in with the demo Google account above (`clinix.demo.tester@gmail.com` / `ClinixDemoUser2026!`).
+   - When Google displays the standard testing consent screen (*"Google hasn't verified this app"*), click **Advanced** -> **Go to Clinix (unsafe)** to grant calendar event access.
+   - You will be redirected to the confirmation screen (`/patient/calendar?status=connected`).
+   - Book any new consultation — it will immediately sync and create an event in that Google Calendar.
 
 ---
 
