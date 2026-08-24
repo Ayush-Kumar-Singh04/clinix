@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
-  Calendar,
   CheckCircle2,
   CalendarCheck,
   ArrowRight,
@@ -13,7 +12,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-export default function PatientCalendarPage() {
+function CalendarSyncContent() {
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
 
@@ -83,5 +82,19 @@ export default function PatientCalendarPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PatientCalendarPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="py-24 text-center text-warm-400 text-sm animate-pulse">
+          Connecting to Google Calendar...
+        </div>
+      }
+    >
+      <CalendarSyncContent />
+    </Suspense>
   );
 }
