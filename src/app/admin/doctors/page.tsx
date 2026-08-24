@@ -648,292 +648,291 @@ Please sign in to configure your consultation schedule.`;
         </div>
       )}
 
-      {/* ADMIN FULL PHYSICIAN PROFILE DOSSIER MODAL */}
+      {/* IN-SECTION PHYSICIAN PROFILE DOSSIER CARD */}
       {selectedDoctorDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/10 backdrop-blur-none animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border-2 border-slate-300 ring-4 ring-black/10 space-y-5 max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
-              <div className="flex items-center space-x-3.5">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-500 text-white font-bold text-xl flex items-center justify-center shadow-md overflow-hidden shrink-0 border-2 border-white">
-                  {selectedDoctorDetail.avatarUrl ? (
-                    <img
-                      src={selectedDoctorDetail.avatarUrl}
-                      alt={selectedDoctorDetail.user.name}
-                      className="w-full h-full object-cover"
-                    />
+        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-slate-300 ring-4 ring-black/5 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
+            <div className="flex items-center space-x-3.5">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-500 text-white font-bold text-xl flex items-center justify-center shadow-md overflow-hidden shrink-0 border-2 border-white">
+                {selectedDoctorDetail.avatarUrl ? (
+                  <img
+                    src={selectedDoctorDetail.avatarUrl}
+                    alt={selectedDoctorDetail.user.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span>{selectedDoctorDetail.user.name.charAt(0)}</span>
+                )}
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 font-serif">
+                  Dr. {selectedDoctorDetail.user.name}
+                </h3>
+                <div className="flex items-center space-x-2 mt-0.5">
+                  <span className="font-semibold text-brand-700 text-xs">
+                    {selectedDoctorDetail.specialization}
+                  </span>
+                  <span className="text-slate-300">•</span>
+                  {selectedDoctorDetail.isActive ? (
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      <span>Active on Roster</span>
+                    </span>
                   ) : (
-                    <span>{selectedDoctorDetail.user.name.charAt(0)}</span>
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500">
+                      <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                      <span>Inactive</span>
+                    </span>
                   )}
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900 font-serif">
-                    Dr. {selectedDoctorDetail.user.name}
-                  </h3>
-                  <div className="flex items-center space-x-2 mt-0.5">
-                    <span className="bg-brand-50 text-brand-700 font-bold px-2.5 py-0.5 rounded-full text-xs border border-brand-200">
-                      {selectedDoctorDetail.specialization}
-                    </span>
-                    <span
-                      className={`text-xs px-2.5 py-0.5 rounded-full font-bold uppercase ${
-                        selectedDoctorDetail.isActive
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          : "bg-slate-100 text-slate-600 border border-slate-300"
-                      }`}
-                    >
-                      {selectedDoctorDetail.isActive ? "Active on Roster" : "Inactive"}
-                    </span>
+              </div>
+            </div>
+            <button
+              onClick={() => setSelectedDoctorDetail(null)}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors flex items-center space-x-1"
+            >
+              <span>Close Dossier</span>
+              <span>×</span>
+            </button>
+          </div>
+
+          {/* Quick Metrics & Details */}
+          {(() => {
+            const ratingDetails = getDoctorRatingDetails(selectedDoctorDetail.id, selectedDoctorDetail.user.name);
+            const proficiencies = getDoctorProficiencies(selectedDoctorDetail.specialization);
+
+            return (
+              <div className="space-y-5 text-xs">
+                {/* Metrics Bar */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 text-center">
+                  <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <div className="text-[10px] text-slate-400 uppercase font-bold">Rating</div>
+                    <div className="font-bold text-slate-900 text-sm flex items-center justify-center gap-1 mt-0.5">
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                      <span>{ratingDetails.rating}</span>
+                    </div>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <div className="text-[10px] text-slate-400 uppercase font-bold">Reviews</div>
+                    <div className="font-bold text-slate-800 text-sm mt-0.5">{ratingDetails.reviewsCount}</div>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <div className="text-[10px] text-slate-400 uppercase font-bold">Consultations</div>
+                    <div className="font-bold text-brand-700 text-sm mt-0.5">{selectedDoctorDetail._count?.doctorAppointments || 0}</div>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <div className="text-[10px] text-slate-400 uppercase font-bold">Experience</div>
+                    <div className="font-bold text-emerald-700 text-sm mt-0.5">{ratingDetails.experienceYears}+ Yrs</div>
                   </div>
                 </div>
-              </div>
-              <button
-                onClick={() => setSelectedDoctorDetail(null)}
-                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 font-bold text-lg flex items-center justify-center transition-colors"
-              >
-                ×
-              </button>
-            </div>
 
-            {/* Quick Metrics */}
-            {(() => {
-              const ratingDetails = getDoctorRatingDetails(selectedDoctorDetail.id, selectedDoctorDetail.user.name);
-              const proficiencies = getDoctorProficiencies(selectedDoctorDetail.specialization);
-
-              return (
-                <div className="space-y-4 text-xs">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 border-2 border-slate-200 rounded-2xl p-3.5 text-center">
-                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
-                      <div className="text-[10px] text-slate-400 uppercase font-bold">Rating</div>
-                      <div className="font-bold text-amber-900 text-sm flex items-center justify-center gap-1 mt-0.5">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
-                        <span>{ratingDetails.rating}</span>
-                      </div>
-                    </div>
-                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
-                      <div className="text-[10px] text-slate-400 uppercase font-bold">Reviews</div>
-                      <div className="font-bold text-slate-800 text-sm mt-0.5">{ratingDetails.reviewsCount}</div>
-                    </div>
-                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
-                      <div className="text-[10px] text-slate-400 uppercase font-bold">Consultations</div>
-                      <div className="font-bold text-brand-700 text-sm mt-0.5">{selectedDoctorDetail._count?.doctorAppointments || 0}</div>
-                    </div>
-                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
-                      <div className="text-[10px] text-slate-400 uppercase font-bold">Experience</div>
-                      <div className="font-bold text-emerald-700 text-sm mt-0.5">{ratingDetails.experienceYears}+ Yrs</div>
-                    </div>
-                  </div>
-
-                  {/* Administrative & Contact Dossier */}
-                  <div className="bg-white border-2 border-slate-200 rounded-2xl p-4 space-y-2.5">
+                {/* Contact & Record Info */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white border-2 border-slate-200 rounded-2xl p-4 space-y-2">
                     <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-100 flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5 text-brand-600" />
-                      <span>Physician Credentials & Contact</span>
+                      <span>Credentials & Contact</span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div>
-                        <span className="text-slate-400 text-[11px]">Login Email:</span>
-                        <div className="font-mono font-bold text-slate-800">{selectedDoctorDetail.user.email}</div>
+                    <div className="space-y-1.5 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Login Email:</span>
+                        <span className="font-mono font-bold text-slate-800">{selectedDoctorDetail.user.email}</span>
                       </div>
-                      <div>
-                        <span className="text-slate-400 text-[11px]">Phone Number:</span>
-                        <div className="font-bold text-slate-800">{selectedDoctorDetail.user.phone || "Not provided"}</div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Phone:</span>
+                        <span className="font-bold text-slate-800">{selectedDoctorDetail.user.phone || "Not set"}</span>
                       </div>
-                      <div>
-                        <span className="text-slate-400 text-[11px]">Consultation Slot Duration:</span>
-                        <div className="font-bold text-slate-800">{selectedDoctorDetail.slotDurationMinutes} Minutes</div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Slot Duration:</span>
+                        <span className="font-bold text-slate-800">{selectedDoctorDetail.slotDurationMinutes} mins</span>
                       </div>
-                      <div>
-                        <span className="text-slate-400 text-[11px]">Doctor Record ID:</span>
-                        <div className="font-mono text-[11px] text-slate-600 truncate">{selectedDoctorDetail.id}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Clinical Proficiencies */}
-                  <div className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 space-y-2">
-                    <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                      <Award className="w-3.5 h-3.5 text-brand-600" />
-                      <span>Clinical Proficiencies & Specializations</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {proficiencies.map((prof, idx) => (
-                        <span
-                          key={idx}
-                          className="bg-white text-slate-800 font-semibold px-2.5 py-1 rounded-lg border border-slate-300 text-xs shadow-xs"
-                        >
-                          ✦ {prof}
-                        </span>
-                      ))}
                     </div>
                   </div>
 
                   {/* Biography */}
                   <div className="bg-white border-2 border-slate-200 rounded-2xl p-4 space-y-1.5">
-                    <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px]">
-                      Physician Bio & Credentials
+                    <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-100">
+                      Physician Biography & Background
                     </div>
-                    <p className="text-slate-700 leading-relaxed text-xs">
-                      {selectedDoctorDetail.bio || "No custom biography provided yet. Default clinical credentials applied."}
+                    <p className="text-slate-700 leading-relaxed text-xs pt-0.5">
+                      {selectedDoctorDetail.bio || "Primary care clinician focused on comprehensive patient health, diagnostic review, and personalized treatment plans."}
                     </p>
                   </div>
+                </div>
 
-                  {/* Working Hours Schedule */}
-                  <div className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 space-y-2">
-                    <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-brand-600" />
-                      <span>Weekly Clinic Schedule</span>
-                    </div>
-                    {selectedDoctorDetail.workingHours && selectedDoctorDetail.workingHours.length > 0 ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        {selectedDoctorDetail.workingHours.map((wh: any) => (
-                          <div key={wh.id} className="bg-white p-2 rounded-xl border border-slate-200 text-xs">
-                            <span className="font-bold text-slate-800">{DAYS_MAP[wh.dayOfWeek] || `Day ${wh.dayOfWeek}`}:</span>{" "}
-                            <span className="text-brand-700 font-mono font-semibold">{wh.startTime} - {wh.endTime}</span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-slate-500 italic">Standard Monday–Friday (09:00 - 17:00)</div>
-                    )}
+                {/* Clinical Proficiencies */}
+                <div className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 space-y-2">
+                  <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <Award className="w-3.5 h-3.5 text-brand-600" />
+                    <span>Clinical Proficiencies</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {proficiencies.map((prof: string, idx: number) => (
+                      <span
+                        key={idx}
+                        className="bg-white text-slate-800 font-semibold px-3 py-1 rounded-lg border border-slate-300 text-xs shadow-xs"
+                      >
+                        ✦ {prof}
+                      </span>
+                    ))}
                   </div>
                 </div>
-              );
-            })()}
 
-            {/* Modal Actions */}
-            <div className="flex items-center justify-between pt-3 border-t-2 border-slate-100 text-xs">
-              <button
-                onClick={() => {
-                  setDoctorToOffboard(selectedDoctorDetail);
-                }}
-                className="px-4 py-2.5 font-bold text-rose-700 hover:bg-rose-50 border border-rose-300 rounded-xl transition-colors flex items-center space-x-1.5"
-              >
-                <Trash2 className="w-4 h-4" />
-                <span>Offboard / Remove Doctor</span>
-              </button>
-
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handleToggleActive(selectedDoctorDetail.id, selectedDoctorDetail.isActive)}
-                  className={`px-4 py-2.5 rounded-xl font-bold transition-colors ${
-                    selectedDoctorDetail.isActive
-                      ? "bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300"
-                      : "bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300"
-                  }`}
-                >
-                  {selectedDoctorDetail.isActive ? "Deactivate Account" : "Activate Account"}
-                </button>
-                <button
-                  onClick={() => setSelectedDoctorDetail(null)}
-                  className="px-5 py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl font-bold transition-colors"
-                >
-                  Close
-                </button>
+                {/* Working Hours Schedule */}
+                <div className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 space-y-2">
+                  <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-brand-600" />
+                    <span>Weekly Clinic Schedule</span>
+                  </div>
+                  {selectedDoctorDetail.workingHours && selectedDoctorDetail.workingHours.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                      {selectedDoctorDetail.workingHours.map((wh: any) => (
+                        <div key={wh.id} className="bg-white p-2.5 rounded-xl border border-slate-200 text-xs text-center">
+                          <div className="font-bold text-slate-800">{DAYS_MAP[wh.dayOfWeek] || `Day ${wh.dayOfWeek}`}</div>
+                          <div className="text-brand-700 font-mono font-semibold text-[11px] mt-0.5">{wh.startTime} - {wh.endTime}</div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-slate-500 italic">Standard Monday–Friday (09:00 - 17:00)</div>
+                  )}
+                </div>
               </div>
+            );
+          })()}
+
+          {/* Dossier Card Actions */}
+          <div className="flex items-center justify-between pt-4 border-t-2 border-slate-100 text-xs">
+            <button
+              onClick={() => {
+                setDoctorToOffboard(selectedDoctorDetail);
+              }}
+              className="px-4 py-2.5 font-bold text-rose-700 hover:bg-rose-50 border border-rose-300 rounded-xl transition-colors flex items-center space-x-1.5"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Offboard / Remove Doctor</span>
+            </button>
+
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => handleToggleActive(selectedDoctorDetail.id, selectedDoctorDetail.isActive)}
+                className={`px-4 py-2.5 rounded-xl font-bold transition-colors ${
+                  selectedDoctorDetail.isActive
+                    ? "text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-300"
+                    : "text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300"
+                }`}
+              >
+                {selectedDoctorDetail.isActive ? "Deactivate Account" : "Activate Account"}
+              </button>
+              <button
+                onClick={() => setSelectedDoctorDetail(null)}
+                className="px-5 py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl font-bold transition-colors"
+              >
+                Close Dossier
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Remove / Offboard Doctor Confirmation Modal */}
+      {/* IN-SECTION REMOVE / OFFBOARD DOCTOR CONFIRMATION CARD */}
       {doctorToOffboard && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/10 backdrop-blur-none animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border-2 border-rose-300 ring-4 ring-rose-500/10 space-y-5">
-            <div className="flex items-center justify-between border-b-2 border-rose-100 pb-3">
-              <div className="flex items-center space-x-3 text-rose-700">
-                <div className="w-10 h-10 rounded-2xl bg-rose-100 flex items-center justify-center border border-rose-200">
-                  <UserMinus className="w-5 h-5 text-rose-600" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 font-serif">
-                    Offboard & Remove Doctor
-                  </h3>
-                  <p className="text-xs text-slate-500 font-sans">
-                    Removes doctor from directory and emails departure notice.
-                  </p>
-                </div>
+        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-rose-300 ring-4 ring-rose-500/10 space-y-5 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="flex items-center justify-between border-b-2 border-rose-100 pb-3">
+            <div className="flex items-center space-x-3 text-rose-700">
+              <div className="w-10 h-10 rounded-2xl bg-rose-100 flex items-center justify-center border border-rose-200">
+                <UserMinus className="w-5 h-5 text-rose-600" />
               </div>
-              <button
-                onClick={() => setDoctorToOffboard(null)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 font-bold text-sm flex items-center justify-center transition-colors"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="bg-rose-50/70 border-2 border-rose-200 rounded-2xl p-4 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-900 text-sm">Dr. {doctorToOffboard.user.name}</span>
-                <span className="bg-white text-rose-700 font-bold text-xs px-2.5 py-0.5 rounded-full border border-rose-200">
-                  {doctorToOffboard.specialization}
-                </span>
-              </div>
-              <div className="text-slate-600 text-xs font-mono">{doctorToOffboard.user.email}</div>
-            </div>
-
-            <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                  Departure / Offboarding Reason *
-                </label>
-                <select
-                  value={offboardReason}
-                  onChange={(e) => setOffboardReason(e.target.value)}
-                  className="w-full p-3 border-2 border-slate-300 bg-slate-50 font-bold text-slate-900 rounded-xl outline-none focus:border-slate-900"
-                >
-                  <option>Contract Termination / Separation</option>
-                  <option>Retirement & Honorary Departure</option>
-                  <option>Physician Resignation / Relocation</option>
-                  <option>End of Clinical Tenure</option>
-                  <option>Administrative Roster Restructuring</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                  Administrative Note (Included in notice email)
-                </label>
-                <textarea
-                  rows={3}
-                  value={offboardNote}
-                  onChange={(e) => setOffboardNote(e.target.value)}
-                  placeholder="e.g. Effective immediately. Handover completed. Thank you for your dedicated service..."
-                  className="w-full p-3 border-2 border-slate-300 bg-slate-50 font-medium text-slate-900 rounded-xl outline-none focus:border-slate-900"
-                />
-              </div>
-
-              <div className="p-3 bg-amber-50 border border-amber-200 text-amber-900 text-[11px] rounded-xl flex items-start space-x-2">
-                <Mail className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                <span>
-                  An official notice explaining the selected reason will be delivered immediately to <strong>{doctorToOffboard.user.email}</strong>.
-                </span>
+                <h3 className="text-base font-bold text-slate-900 font-serif">
+                  Offboard & Remove Doctor
+                </h3>
+                <p className="text-xs text-slate-500 font-sans">
+                  Removes doctor from directory and emails departure notice.
+                </p>
               </div>
             </div>
+            <button
+              onClick={() => setDoctorToOffboard(null)}
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 font-bold text-sm flex items-center justify-center transition-colors"
+            >
+              ×
+            </button>
+          </div>
 
-            <div className="flex items-center justify-end space-x-3 pt-2 border-t-2 border-slate-100">
-              <button
-                type="button"
-                onClick={() => setDoctorToOffboard(null)}
-                className="px-5 py-2.5 font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors text-xs"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmOffboarding}
-                disabled={isOffboarding}
-                className="px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center space-x-2 text-xs disabled:opacity-50"
-              >
-                {isOffboarding ? (
-                  <span>Offboarding & Sending Notice...</span>
-                ) : (
-                  <>
-                    <Trash2 className="w-4 h-4" />
-                    <span>Confirm Offboard & Send Notice</span>
-                  </>
-                )}
-              </button>
+          <div className="bg-rose-50/70 border-2 border-rose-200 rounded-2xl p-4 space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-slate-900 text-sm">Dr. {doctorToOffboard.user.name}</span>
+              <span className="font-bold text-rose-700 text-xs">
+                {doctorToOffboard.specialization}
+              </span>
             </div>
+            <div className="text-slate-600 text-xs font-mono">{doctorToOffboard.user.email}</div>
+          </div>
+
+          <div className="space-y-3 text-xs">
+            <div>
+              <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                Departure / Offboarding Reason *
+              </label>
+              <select
+                value={offboardReason}
+                onChange={(e) => setOffboardReason(e.target.value)}
+                className="w-full p-3 border-2 border-slate-300 bg-slate-50 font-bold text-slate-900 rounded-xl outline-none focus:border-slate-900"
+              >
+                <option>Contract Termination / Separation</option>
+                <option>Retirement & Honorary Departure</option>
+                <option>Physician Resignation / Relocation</option>
+                <option>End of Clinical Tenure</option>
+                <option>Administrative Roster Restructuring</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                Administrative Note (Included in notice email)
+              </label>
+              <textarea
+                rows={3}
+                value={offboardNote}
+                onChange={(e) => setOffboardNote(e.target.value)}
+                placeholder="e.g. Effective immediately. Handover completed. Thank you for your dedicated service..."
+                className="w-full p-3 border-2 border-slate-300 bg-slate-50 font-medium text-slate-900 rounded-xl outline-none focus:border-slate-900"
+              />
+            </div>
+
+            <div className="p-3 bg-amber-50 border border-amber-200 text-amber-900 text-[11px] rounded-xl flex items-start space-x-2">
+              <Mail className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+              <span>
+                An official notice explaining the selected reason will be delivered immediately to <strong>{doctorToOffboard.user.email}</strong>.
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end space-x-3 pt-2 border-t-2 border-slate-100">
+            <button
+              type="button"
+              onClick={() => setDoctorToOffboard(null)}
+              className="px-5 py-2.5 font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors text-xs"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmOffboarding}
+              disabled={isOffboarding}
+              className="px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center space-x-2 text-xs disabled:opacity-50"
+            >
+              {isOffboarding ? (
+                <span>Offboarding & Sending Notice...</span>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4" />
+                  <span>Confirm Offboard & Send Notice</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       )}
