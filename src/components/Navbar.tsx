@@ -206,19 +206,19 @@ export default function Navbar() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 shrink-0">
               <Link
                 href="/login"
-                className="px-4 py-2 text-sm font-semibold transition-colors text-warm-800 hover:text-slate-900"
+                className="px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold transition-colors text-warm-800 hover:text-slate-900 whitespace-nowrap shrink-0"
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className="btn-amber !py-2 !px-5 !text-xs shadow-sm font-bold"
+                className="btn-amber !py-1.5 !px-3 sm:!py-2 sm:!px-5 !text-xs shadow-xs font-bold whitespace-nowrap shrink-0 flex items-center space-x-1"
               >
-                <span>Get started</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Get Started</span>
+                <ArrowRight className="w-3.5 h-3.5 hidden sm:inline" />
               </Link>
             </div>
           )}

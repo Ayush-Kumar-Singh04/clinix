@@ -27,6 +27,23 @@ export default function RegisterPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Password strength calculation
+  const getPasswordStrength = (pass: string) => {
+    if (!pass) return { score: 0, label: "", color: "bg-slate-200", labelColor: "text-slate-400" };
+    let score = 0;
+    if (pass.length >= 6) score++;
+    if (pass.length >= 10) score++;
+    if (/[A-Z]/.test(pass)) score++;
+    if (/[0-9]/.test(pass)) score++;
+    if (/[^A-Za-z0-9]/.test(pass)) score++;
+
+    if (score <= 2) return { score: 33, label: "Basic", color: "bg-amber-400", labelColor: "text-amber-600" };
+    if (score <= 4) return { score: 66, label: "Good", color: "bg-brand-500", labelColor: "text-brand-600" };
+    return { score: 100, label: "Strong & Secure", color: "bg-emerald-500", labelColor: "text-emerald-600" };
+  };
+
+  const strength = getPasswordStrength(password);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
@@ -181,10 +198,18 @@ export default function RegisterPage() {
             </div>
 
             {/* Password */}
-            <div className="space-y-1">
-              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                Password *
-              </label>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                  Password *
+                </label>
+                {password && (
+                  <span className="text-[11px] font-bold">
+                    <span className="text-slate-400">Strength: </span>
+                    <span className={strength.labelColor}>{strength.label}</span>
+                  </span>
+                )}
+              </div>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
@@ -203,6 +228,20 @@ export default function RegisterPage() {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+
+              {/* Password Strength Progress Bar (Always visible & responsive) */}
+              <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1">
+                <div
+                  className={`h-full ${password ? strength.color : "bg-slate-200"} transition-all duration-300`}
+                  style={{ width: `${password ? strength.score : 0}%` }}
+                />
+              </div>
+              {password && (
+                <div className="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
+                  <span>Min. 6 characters</span>
+                  <span>{strength.score >= 66 ? "✓ Good complexity" : "Tip: Add letters & numbers"}</span>
+                </div>
+              )}
             </div>
 
             {/* Terms disclaimer */}
