@@ -41,3 +41,6 @@ pnpm-debug.log*
 # Diagnostic & coverage
 coverage/
 .nyc_output/
+
+# Archive files
+*.zip
