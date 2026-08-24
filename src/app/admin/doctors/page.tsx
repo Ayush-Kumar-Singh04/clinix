@@ -5,8 +5,6 @@ import {
   Stethoscope,
   Plus,
   Star,
-  ToggleLeft,
-  ToggleRight,
   Check,
   X,
   AlertCircle,
@@ -14,8 +12,6 @@ import {
   Copy,
   CheckCheck,
   KeyRound,
-  Mail,
-  ShieldCheck,
   Eye,
   EyeOff,
   RefreshCw,
@@ -25,10 +21,16 @@ import {
   Upload,
   User,
   ChevronUp,
-  ChevronDown,
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
+
+const PRESET_AVATARS = [
+  { name: "Dr. Male 1", url: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=200&q=80" },
+  { name: "Dr. Female 1", url: "https://images.unsplash.com/photo-1594824813620-6d482390a880?w=200&q=80" },
+  { name: "Dr. Male 2", url: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=200&q=80" },
+  { name: "Dr. Female 2", url: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&q=80" },
+];
 
 export default function AdminDoctorManagementPage() {
   const [doctors, setDoctors] = useState<any[]>([]);
@@ -36,7 +38,7 @@ export default function AdminDoctorManagementPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Create Form State
+  // Form State
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("ClinixDoctor2026!");
@@ -49,7 +51,7 @@ export default function AdminDoctorManagementPage() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Success Created Banner State (Credentials to convey)
+  // Success Created Banner State
   const [createdDoctorCreds, setCreatedDoctorCreds] = useState<{
     name: string;
     email: string;
@@ -91,8 +93,8 @@ export default function AdminDoctorManagementPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      setErrorMsg("Profile photo must be under 2MB.");
+    if (file.size > 3 * 1024 * 1024) {
+      setErrorMsg("Profile photo must be under 3MB.");
       return;
     }
 
@@ -150,7 +152,6 @@ export default function AdminDoctorManagementPage() {
         return;
       }
 
-      // Save created credentials for admin to convey to doctor
       setCreatedDoctorCreds({
         name,
         email: email.trim().toLowerCase(),
@@ -184,7 +185,7 @@ Login Portal: ${window.location.origin}/login
 Email / Username: ${createdDoctorCreds.email}
 Temporary Password: ${createdDoctorCreds.password}
 
-Please sign in and set up your weekly consultation availability.`;
+Please sign in to configure your consultation schedule.`;
 
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -192,7 +193,7 @@ Please sign in and set up your weekly consultation availability.`;
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -206,11 +207,8 @@ Please sign in and set up your weekly consultation availability.`;
             </Link>
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif text-warm-900 tracking-tight mt-1">
-            Doctor Staff & Appointments Directory
+            Doctor Staff Directory
           </h1>
-          <p className="text-xs sm:text-sm text-warm-600">
-            Appoint new physicians, configure profile photos, consultation durations, credentials, and toggle clinic roster status.
-          </p>
         </div>
 
         <button
@@ -240,7 +238,7 @@ Please sign in and set up your weekly consultation availability.`;
 
       {/* Success Credentials Banner (In-Section) */}
       {createdDoctorCreds && (
-        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-emerald-300 ring-4 ring-emerald-500/10 space-y-5 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-emerald-300 ring-4 ring-emerald-500/10 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex items-center justify-between border-b-2 border-emerald-100 pb-3">
             <div className="flex items-center space-x-3 text-emerald-700">
               <div className="w-10 h-10 rounded-2xl bg-emerald-100 flex items-center justify-center border border-emerald-200 shadow-xs">
@@ -248,10 +246,10 @@ Please sign in and set up your weekly consultation availability.`;
               </div>
               <div>
                 <h3 className="text-base font-bold text-slate-900 font-serif">
-                  Doctor Account Appointed & Onboarding Dispatched!
+                  Doctor Appointed & Credentials Sent!
                 </h3>
                 <p className="text-xs text-slate-500 font-sans">
-                  Official credentials have been sent via email. You can also copy them below.
+                  Onboarding email has been dispatched.
                 </p>
               </div>
             </div>
@@ -263,10 +261,9 @@ Please sign in and set up your weekly consultation availability.`;
             </button>
           </div>
 
-          {/* Credentials Card */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 border-2 border-slate-300 rounded-2xl p-4 font-mono text-xs text-slate-900">
             <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1">
-              <span className="text-slate-500 font-sans font-semibold text-[11px] uppercase">Doctor Name:</span>
+              <span className="text-slate-500 font-sans font-semibold text-[11px] uppercase">Doctor Name</span>
               <div className="flex items-center space-x-2">
                 {createdDoctorCreds.avatarUrl && (
                   <img
@@ -280,71 +277,61 @@ Please sign in and set up your weekly consultation availability.`;
             </div>
 
             <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1">
-              <span className="text-slate-500 font-sans font-semibold text-[11px] uppercase">Specialization:</span>
+              <span className="text-slate-500 font-sans font-semibold text-[11px] uppercase">Specialization</span>
               <div className="font-sans font-bold text-brand-700">{createdDoctorCreds.specialization}</div>
             </div>
 
             <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1">
-              <span className="text-slate-500 font-sans font-semibold text-[11px] uppercase">Login Email:</span>
+              <span className="text-slate-500 font-sans font-semibold text-[11px] uppercase">Login Email</span>
               <div className="font-bold text-slate-800 truncate">{createdDoctorCreds.email}</div>
             </div>
 
             <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1">
-              <span className="text-slate-500 font-sans font-semibold text-[11px] uppercase">Temporary Password:</span>
+              <span className="text-slate-500 font-sans font-semibold text-[11px] uppercase">Temporary Password</span>
               <div className="font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-200 inline-block">
                 {createdDoctorCreds.password}
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-            <p className="text-[11px] text-slate-500">
-              The physician can sign in at <strong className="text-slate-800">/doctor</strong> or <strong className="text-slate-800">/login</strong>.
-            </p>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={copyCredentialsToClipboard}
-                className="px-5 py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold shadow-md flex items-center space-x-2 transition-colors"
-              >
-                {copied ? (
-                  <>
-                    <CheckCheck className="w-4 h-4 text-emerald-400" />
-                    <span>Copied to Clipboard!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4 text-amber-300" />
-                    <span>Copy Credentials</span>
-                  </>
-                )}
-              </button>
-              <button
-                onClick={() => setCreatedDoctorCreds(null)}
-                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs"
-              >
-                Dismiss
-              </button>
-            </div>
+          <div className="flex items-center justify-end space-x-2 pt-1">
+            <button
+              onClick={copyCredentialsToClipboard}
+              className="px-5 py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold shadow-md flex items-center space-x-2 transition-colors"
+            >
+              {copied ? (
+                <>
+                  <CheckCheck className="w-4 h-4 text-emerald-400" />
+                  <span>Copied to Clipboard!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 text-amber-300" />
+                  <span>Copy Credentials</span>
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => setCreatedDoctorCreds(null)}
+              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs"
+            >
+              Dismiss
+            </button>
           </div>
         </div>
       )}
 
-      {/* Appoint New Doctor In-Section Expandable Form (No Dark Backdrop Screen) */}
+      {/* Appoint New Doctor In-Section Expandable Form */}
       {isFormOpen && (
-        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-slate-300 ring-4 ring-black/5 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-slate-300 ring-4 ring-black/5 space-y-5 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center border-2 border-brand-200 shadow-xs">
                 <Stethoscope className="w-5 h-5" />
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 font-serif">
-                  Appoint New Doctor
-                </h3>
-                <p className="text-xs text-slate-500 font-sans">
-                  Enter physician details below to register their profile in the clinic system.
-                </p>
-              </div>
+              <h3 className="text-lg font-bold text-slate-900 font-serif">
+                Appoint New Doctor
+              </h3>
             </div>
             <button
               onClick={() => setIsFormOpen(false)}
@@ -362,31 +349,34 @@ Please sign in and set up your weekly consultation availability.`;
           )}
 
           <form onSubmit={handleCreateDoctor} className="space-y-5 text-xs">
-            {/* Top Grid: Profile Photo + Core Details */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {/* Profile Photo Section */}
-              <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-300 space-y-3 flex flex-col justify-between">
-                <div>
-                  <label className="font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 mb-1">
-                    <Camera className="w-4 h-4 text-brand-600" />
-                    Doctor Photo (Optional)
-                  </label>
-                  <p className="text-[10px] text-slate-500">Displayed in Navbar and directory.</p>
+            {/* Profile Photo Section with Upload & Quick Presets */}
+            <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-300 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <Camera className="w-4 h-4 text-brand-600" />
+                  Doctor Profile Photo (Optional)
+                </label>
+                <span className="text-[11px] text-slate-500 font-medium font-sans">
+                  Upload file, paste link, or pick a preset
+                </span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                {/* Photo Preview Thumbnail */}
+                <div className="w-16 h-16 rounded-2xl bg-slate-200 border-2 border-slate-300 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+                  {avatarPreview ? (
+                    <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-8 h-8 text-slate-400" />
+                  )}
                 </div>
 
-                <div className="flex items-center space-x-3">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-200 border-2 border-slate-300 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
-                    {avatarPreview ? (
-                      <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="w-8 h-8 text-slate-400" />
-                    )}
-                  </div>
-
-                  <div className="space-y-1.5 flex-1">
-                    <label className="cursor-pointer inline-flex items-center space-x-1.5 px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-800 border-2 border-slate-300 rounded-xl text-[11px] font-bold shadow-xs transition-colors">
+                {/* Upload Button & URL input */}
+                <div className="flex-1 space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="cursor-pointer inline-flex items-center space-x-1.5 px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-800 border-2 border-slate-300 rounded-xl text-xs font-bold shadow-xs transition-colors">
                       <Upload className="w-3.5 h-3.5 text-brand-600" />
-                      <span>Upload File</span>
+                      <span>Choose Image File</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -394,6 +384,7 @@ Please sign in and set up your weekly consultation availability.`;
                         className="hidden"
                       />
                     </label>
+
                     {avatarPreview && (
                       <button
                         type="button"
@@ -401,91 +392,97 @@ Please sign in and set up your weekly consultation availability.`;
                           setAvatarPreview(null);
                           setAvatarUrl("");
                         }}
-                        className="block text-[10px] font-bold text-rose-600 hover:text-rose-700"
+                        className="px-3 py-2 text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl border border-rose-200 transition-colors"
                       >
                         Remove Photo
                       </button>
                     )}
                   </div>
-                </div>
 
+                  {/* Preset Avatars */}
+                  <div className="flex items-center gap-2 pt-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Presets:</span>
+                    {PRESET_AVATARS.map((p, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => {
+                          setAvatarPreview(p.url);
+                          setAvatarUrl(p.url);
+                        }}
+                        className="w-7 h-7 rounded-full overflow-hidden border-2 hover:scale-110 transition-transform focus:ring-2 focus:ring-brand-500"
+                        title={p.name}
+                      >
+                        <img src={p.url} alt={p.name} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Doctor Info Fields */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                  Doctor Full Name *
+                </label>
                 <input
                   type="text"
-                  placeholder="Or paste photo URL (https://...)"
-                  value={avatarUrl}
-                  onChange={(e) => {
-                    setAvatarUrl(e.target.value);
-                    setAvatarPreview(e.target.value || null);
-                  }}
-                  className="w-full p-2 border-2 border-slate-300 bg-white rounded-xl text-xs font-mono text-slate-800 outline-none focus:border-slate-900"
+                  required
+                  placeholder="e.g. Dr. Ananya Sharma"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full p-3.5 border-2 border-slate-300 bg-slate-50/70 hover:border-slate-400 focus:border-slate-900 focus:bg-white focus:ring-4 focus:ring-slate-900/10 text-slate-900 text-sm font-semibold rounded-xl outline-none transition-all shadow-xs"
                 />
               </div>
 
-              {/* Name & Email Fields */}
-              <div className="md:col-span-2 space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                      Doctor Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Dr. Ananya Sharma"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full p-3.5 border-2 border-slate-300 bg-slate-50/70 hover:border-slate-400 focus:border-slate-900 focus:bg-white focus:ring-4 focus:ring-slate-900/10 text-slate-900 text-sm font-semibold rounded-xl outline-none transition-all shadow-xs"
-                    />
-                  </div>
+              <div>
+                <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                  Email Address (Login Username) *
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="dr.sharma@clinix.health"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full p-3.5 border-2 border-slate-300 bg-slate-50/70 hover:border-slate-400 focus:border-slate-900 focus:bg-white focus:ring-4 focus:ring-slate-900/10 text-slate-900 text-sm font-semibold rounded-xl outline-none transition-all shadow-xs"
+                />
+              </div>
+            </div>
 
-                  <div>
-                    <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                      Email Address (Login Username) *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="dr.sharma@clinix.health"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full p-3.5 border-2 border-slate-300 bg-slate-50/70 hover:border-slate-400 focus:border-slate-900 focus:bg-white focus:ring-4 focus:ring-slate-900/10 text-slate-900 text-sm font-semibold rounded-xl outline-none transition-all shadow-xs"
-                    />
-                  </div>
-                </div>
-
-                {/* Password Setting Section */}
-                <div className="bg-slate-50 p-3.5 rounded-2xl border-2 border-slate-300 space-y-2 shadow-xs">
-                  <div className="flex items-center justify-between">
-                    <label className="font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                      <KeyRound className="w-4 h-4 text-brand-600" />
-                      Doctor Account Password *
-                    </label>
-                    <button
-                      type="button"
-                      onClick={handleGeneratePassword}
-                      className="text-[11px] font-bold text-brand-600 hover:text-brand-800 flex items-center gap-1 bg-brand-50 px-2.5 py-0.5 rounded-lg border border-brand-200"
-                    >
-                      <RefreshCw className="w-3 h-3" />
-                      <span>Generate Strong</span>
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full p-2.5 pr-10 border-2 border-slate-300 rounded-xl outline-none focus:border-slate-900 text-sm font-mono font-bold text-slate-900 bg-white"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-700"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
+            {/* Password Setting Section */}
+            <div className="bg-slate-50 p-3.5 rounded-2xl border-2 border-slate-300 space-y-2 shadow-xs">
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <KeyRound className="w-4 h-4 text-brand-600" />
+                  Doctor Account Password *
+                </label>
+                <button
+                  type="button"
+                  onClick={handleGeneratePassword}
+                  className="text-[11px] font-bold text-brand-600 hover:text-brand-800 flex items-center gap-1 bg-brand-50 px-2.5 py-0.5 rounded-lg border border-brand-200"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>Generate Strong</span>
+                </button>
+              </div>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-2.5 pr-10 border-2 border-slate-300 rounded-xl outline-none focus:border-slate-900 text-sm font-mono font-bold text-slate-900 bg-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-700"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
@@ -542,7 +539,7 @@ Please sign in and set up your weekly consultation availability.`;
 
             <div>
               <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                Doctor Biography & Clinical Credentials
+                Doctor Biography & Credentials
               </label>
               <textarea
                 rows={2}
