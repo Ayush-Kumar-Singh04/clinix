@@ -2,7 +2,7 @@ import { Resend } from "resend";
 import { prisma } from "./prisma";
 
 const resendApiKey = process.env.RESEND_API_KEY;
-const emailFrom = process.env.EMAIL_FROM || "Clinix Healthcare <notifications@clinix.health>";
+const emailFrom = process.env.EMAIL_FROM || "Clinix Healthcare <onboarding@resend.dev>";
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 export interface NotificationPayload {
@@ -16,8 +16,55 @@ export interface NotificationPayload {
   medicineName?: string;
   dosage?: string;
   actionUrl?: string;
+  password?: string;
 }
 
+/**
+ * Directly sends an email immediately via Resend (Synchronous & Serverless Safe)
+ */
+export async function sendDirectEmail({
+  to,
+  subject,
+  html,
+  text,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+}) {
+  console.log(`[Email Dispatch] Sending '${subject}' immediately to ${to}...`);
+
+  if (!resend || !resendApiKey) {
+    console.warn(`[Email Sandbox] RESEND_API_KEY not configured. Email logged to console for ${to}: ${subject}`);
+    return { success: true, id: "sandbox-local-id", simulated: true };
+  }
+
+  try {
+    const response = await resend.emails.send({
+      from: emailFrom,
+      to,
+      subject,
+      html,
+      text: text || undefined,
+    });
+
+    if (response.error) {
+      console.error(`[Resend Error] Failed to send email to ${to}:`, response.error);
+      return { success: false, error: response.error.message };
+    }
+
+    console.log(`[Resend Success] Email delivered to ${to} (ID: ${response.data?.id})`);
+    return { success: true, id: response.data?.id };
+  } catch (error: any) {
+    console.error(`[Resend Network Error] Failed sending to ${to}:`, error.message || error);
+    return { success: false, error: error.message || "Network delivery error" };
+  }
+}
+
+/**
+ * Queues a notification and immediately processes it in serverless safe manner
+ */
 export async function queueNotification(
   type:
     | "BOOKING_CONFIRMATION"
@@ -26,7 +73,8 @@ export async function queueNotification(
     | "RESCHEDULE"
     | "DOCTOR_LEAVE"
     | "POST_VISIT"
-    | "MEDICATION_REMINDER",
+    | "MEDICATION_REMINDER"
+    | "DOCTOR_ONBOARDING",
   recipientEmail: string,
   payload: NotificationPayload,
   scheduledAt: Date = new Date()
@@ -42,15 +90,43 @@ export async function queueNotification(
       },
     });
 
-    // Auto-trigger background delivery immediately
-    processNotificationQueue().catch((err) =>
-      console.warn("[Email Background Worker Note]", err?.message || err)
-    );
+    // Execute synchronous processing immediately so serverless lambdas don't freeze execution
+    await processSingleJob(job.id, type, recipientEmail, payload);
 
     return job;
   } catch (error) {
     console.error("[Notification Error] Failed to queue notification job:", error);
     return null;
+  }
+}
+
+async function processSingleJob(
+  jobId: string,
+  type: string,
+  recipientEmail: string,
+  payload: NotificationPayload
+) {
+  const emailSubject = getEmailSubject(type, payload);
+  const emailHtml = getEmailHtmlTemplate(type, payload);
+
+  const res = await sendDirectEmail({
+    to: recipientEmail,
+    subject: emailSubject,
+    html: emailHtml,
+  });
+
+  try {
+    await prisma.notificationJob.update({
+      where: { id: jobId },
+      data: {
+        status: res.success ? "SENT" : "FAILED",
+        sentAt: res.success ? new Date() : null,
+        lastError: res.error || null,
+        attempts: 1,
+      },
+    });
+  } catch (e) {
+    console.error("[Job Update Error]", e);
   }
 }
 
@@ -74,57 +150,110 @@ export async function processNotificationQueue(batchSize: number = 10) {
   };
 
   for (const job of jobs) {
-    // Mark as PROCESSING
-    await prisma.notificationJob.update({
-      where: { id: job.id },
-      data: { status: "PROCESSING", attempts: job.attempts + 1 },
-    });
-
     const payload = job.payload as unknown as NotificationPayload;
     const emailSubject = getEmailSubject(job.type, payload);
     const emailHtml = getEmailHtmlTemplate(job.type, payload);
 
-    let sendSuccess = false;
-    let sendError: string | null = null;
+    const res = await sendDirectEmail({
+      to: job.recipientEmail,
+      subject: emailSubject,
+      html: emailHtml,
+    });
 
-    if (resend) {
-      try {
-        const response = await resend.emails.send({
-          from: emailFrom,
-          to: job.recipientEmail,
-          subject: emailSubject,
-          html: emailHtml,
-        });
-
-        if (response.error) {
-          sendError = response.error.message;
-          console.warn(`[Resend Notice] ${response.error.message} — Logged to Clinix dispatch stream for ${job.recipientEmail}`);
-        } else {
-          sendSuccess = true;
-          console.log(`[Email Delivered via Resend] '${emailSubject}' -> ${job.recipientEmail} (ID: ${response.data?.id})`);
-        }
-      } catch (err: any) {
-        sendError = err.message || String(err);
-        console.warn(`[Resend Sandbox Notice] ${sendError} — Delivered to local notification stream for ${job.recipientEmail}`);
-      }
-    } else {
-      console.log(`[Email Dispatch Log] Sent '${emailSubject}' to ${job.recipientEmail}`);
-      sendSuccess = true;
-    }
-
-    // Always record the sent notification in the audit trail
     await prisma.notificationJob.update({
       where: { id: job.id },
       data: {
-        status: "SENT",
-        sentAt: new Date(),
-        lastError: sendError,
+        status: res.success ? "SENT" : "FAILED",
+        sentAt: res.success ? new Date() : null,
+        lastError: res.error || null,
+        attempts: job.attempts + 1,
       },
     });
-    results.sent++;
+
+    if (res.success) results.sent++;
+    else results.failed++;
   }
 
   return results;
+}
+
+export function getDoctorOnboardingEmailHtml({
+  name,
+  email,
+  password,
+  specialization,
+}: {
+  name: string;
+  email: string;
+  password?: string;
+  specialization: string;
+}): string {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://clinix-web.netlify.app";
+
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #0f172a; margin: 0; padding: 24px; }
+      .container { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+      .header { background: linear-gradient(135deg, #0EA5E9, #14B8A6); padding: 32px 24px; text-align: center; color: white; }
+      .header h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+      .content { padding: 32px 28px; }
+      .credentials-box { background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 12px; padding: 20px; margin: 24px 0; }
+      .cred-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+      .cred-row:last-child { border-bottom: none; }
+      .label { color: #64748b; font-weight: 600; }
+      .value { color: #0f172a; font-weight: 700; font-family: monospace; }
+      .btn { display: block; text-align: center; background: #0f172a; color: #ffffff !important; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 700; font-size: 14px; margin-top: 24px; }
+      .footer { background: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #64748b; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Clinix Healthcare</h1>
+        <p style="margin: 6px 0 0 0; opacity: 0.9; font-size: 14px;">Physician Account Onboarding</p>
+      </div>
+      <div class="content">
+        <h2 style="margin-top: 0; font-size: 20px;">Welcome to Clinix, Dr. ${name}!</h2>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6;">
+          Your physician practitioner profile in <strong>${specialization}</strong> has been successfully registered on the Clinix Healthcare Platform.
+        </p>
+
+        <div class="credentials-box">
+          <div style="font-size: 12px; font-weight: 800; color: #0284c7; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;">Your Login Credentials</div>
+          <div class="cred-row">
+            <span class="label">Portal URL:</span>
+            <span class="value">${appUrl}/login</span>
+          </div>
+          <div class="cred-row">
+            <span class="label">Login Email:</span>
+            <span class="value">${email}</span>
+          </div>
+          ${password ? `
+          <div class="cred-row">
+            <span class="label">Temporary Password:</span>
+            <span class="value" style="background: #fef3c7; color: #78350f; padding: 2px 6px; border-radius: 4px;">${password}</span>
+          </div>
+          ` : ""}
+        </div>
+
+        <p style="color: #475569; font-size: 13px; line-height: 1.5;">
+          Please sign in to configure your consultation schedule, review patient pre-visit summaries, and manage clinical appointments.
+        </p>
+
+        <a href="${appUrl}/login" class="btn">Sign In to Doctor Portal</a>
+      </div>
+      <div class="footer">
+        <p style="margin: 0;">This is an automated operational message from Clinix Healthcare Platform.</p>
+        <p style="margin: 4px 0 0 0;">© 2026 Clinix. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
 }
 
 function getEmailSubject(type: string, payload: NotificationPayload): string {
@@ -143,13 +272,15 @@ function getEmailSubject(type: string, payload: NotificationPayload): string {
       return `Your Post-Visit Clinical Summary & Care Plan`;
     case "MEDICATION_REMINDER":
       return `Medication Reminder: ${payload.medicineName || "Scheduled Dose"}`;
+    case "DOCTOR_ONBOARDING":
+      return `Welcome to Clinix — Your Physician Account Access Credentials`;
     default:
       return `Clinix Healthcare Notification`;
   }
 }
 
 function getEmailHtmlTemplate(type: string, payload: NotificationPayload): string {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://clinix-web.netlify.app";
   const actionLink = payload.actionUrl || `${appUrl}/patient/appointments`;
 
   return `
@@ -158,15 +289,14 @@ function getEmailHtmlTemplate(type: string, payload: NotificationPayload): strin
   <head>
     <meta charset="utf-8">
     <style>
-      body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 20px; }
-      .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
-      .header { background: #026fc7; padding: 24px; text-align: center; color: white; }
-      .header h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 20px; }
+      .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; }
+      .header { background: linear-gradient(135deg, #0EA5E9, #14B8A6); padding: 28px 24px; text-align: center; color: white; }
+      .header h1 { margin: 0; font-size: 24px; font-weight: 800; }
       .content { padding: 32px 24px; }
-      .info-card { background: #f0f7ff; border-left: 4px solid #0c8de9; padding: 16px; margin: 20px 0; border-radius: 4px; }
-      .info-card p { margin: 4px 0; color: #0c3f6e; font-size: 14px; }
-      .btn { display: inline-block; background: #0c8de9; color: white; text-d
-      ecoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; margin-top: 16px; }
+      .info-card { background: #f0fdfa; border-left: 4px solid #0d9488; padding: 16px; margin: 20px 0; border-radius: 8px; border: 1px solid #ccfbf1; }
+      .info-card p { margin: 4px 0; color: #134e4a; font-size: 14px; }
+      .btn { display: inline-block; background: #0f172a; color: white !important; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; margin-top: 16px; font-size: 14px; }
       .footer { background: #f1f5f9; padding: 16px; text-align: center; font-size: 12px; color: #64748b; }
     </style>
   </head>
@@ -176,8 +306,8 @@ function getEmailHtmlTemplate(type: string, payload: NotificationPayload): strin
         <h1>Clinix Healthcare</h1>
       </div>
       <div class="content">
-        <h2>Hello ${payload.recipientName},</h2>
-        <p>${getMessageBody(type, payload)}</p>
+        <h2 style="font-size: 18px;">Hello ${payload.recipientName},</h2>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6;">${getMessageBody(type, payload)}</p>
 
         ${payload.appointmentDate
       ? `
@@ -197,8 +327,8 @@ function getEmailHtmlTemplate(type: string, payload: NotificationPayload): strin
         <a href="${actionLink}" class="btn">View in Clinix Portal</a>
       </div>
       <div class="footer">
-        <p>This is an automated notification from Clinix Healthcare Platform.</p>
-        <p>© 2026 Clinix. All rights reserved.</p>
+        <p style="margin: 0;">This is an automated notification from Clinix Healthcare Platform.</p>
+        <p style="margin: 4px 0 0 0;">© 2026 Clinix. All rights reserved.</p>
       </div>
     </div>
   </body>

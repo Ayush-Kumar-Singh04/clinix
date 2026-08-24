@@ -3,6 +3,7 @@ import { authorizeUser, hashPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DoctorCreateSchema } from "@/lib/validations";
 import { createErrorResponse, createSuccessResponse } from "@/lib/utils";
+import { sendDirectEmail, getDoctorOnboardingEmailHtml } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const auth = await authorizeUser(req, ["ADMIN"]);
@@ -60,6 +61,18 @@ export async function POST(req: NextRequest) {
 
       return doc;
     });
+
+    // Send immediate onboarding credentials email to the newly appointed doctor
+    sendDirectEmail({
+      to: validated.email,
+      subject: "Welcome to Clinix — Your Physician Account Access Credentials",
+      html: getDoctorOnboardingEmailHtml({
+        name: validated.name,
+        email: validated.email,
+        password: validated.password,
+        specialization: validated.specialization,
+      }),
+    }).catch((err) => console.error("[Doctor Onboarding Email Error]", err));
 
     return createSuccessResponse({ doctor }, 201);
   } catch (error: any) {
