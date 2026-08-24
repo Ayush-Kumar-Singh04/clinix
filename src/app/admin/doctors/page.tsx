@@ -369,27 +369,32 @@ Please sign in and set up your weekly consultation availability.`;
 
       {/* Appoint New Doctor Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-warm-950/70 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-warm-100 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-warm-100 pb-3">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
-                  <Stethoscope className="w-4 h-4" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border-2 border-slate-300 ring-4 ring-black/10 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center border border-brand-200">
+                  <Stethoscope className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-bold text-warm-900 font-serif">
-                  Appoint New Doctor
-                </h3>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 font-serif">
+                    Appoint New Doctor
+                  </h3>
+                  <p className="text-[11px] text-slate-500 font-sans">
+                    Register physician credentials to the clinic staff directory.
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-warm-400 hover:text-warm-600 font-bold text-xl"
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 font-bold text-lg flex items-center justify-center transition-colors"
               >
                 ×
               </button>
             </div>
 
             {errorMsg && (
-              <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-2xl flex items-center gap-2">
+              <div className="p-3.5 bg-rose-50 border-2 border-rose-300 text-rose-700 text-xs font-bold rounded-2xl flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMsg}</span>
               </div>
@@ -397,21 +402,21 @@ Please sign in and set up your weekly consultation availability.`;
 
             <form onSubmit={handleCreateDoctor} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-warm-700 uppercase tracking-wider mb-1">
+                <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
                   Doctor Full Name *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Ananya Sharma"
+                  placeholder="e.g. Dr. Ananya Sharma"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full p-3 border border-warm-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm font-medium text-warm-900"
+                  className="w-full p-3.5 border-2 border-slate-300 bg-slate-50/70 hover:border-slate-400 focus:border-slate-900 focus:bg-white focus:ring-4 focus:ring-slate-900/10 text-slate-900 text-sm font-semibold rounded-xl outline-none transition-all shadow-xs"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-warm-700 uppercase tracking-wider mb-1">
+                <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
                   Email Address (Login Username) *
                 </label>
                 <input
@@ -420,24 +425,24 @@ Please sign in and set up your weekly consultation availability.`;
                   placeholder="dr.sharma@clinix.health"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-3 border border-warm-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm font-medium text-warm-900"
+                  className="w-full p-3.5 border-2 border-slate-300 bg-slate-50/70 hover:border-slate-400 focus:border-slate-900 focus:bg-white focus:ring-4 focus:ring-slate-900/10 text-slate-900 text-sm font-semibold rounded-xl outline-none transition-all shadow-xs"
                 />
               </div>
 
               {/* Password Setting Section */}
-              <div className="bg-warm-50/80 p-3.5 rounded-2xl border border-warm-200/70 space-y-2">
+              <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-300 space-y-2.5 shadow-xs">
                 <div className="flex items-center justify-between">
-                  <label className="font-bold text-warm-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <KeyRound className="w-3.5 h-3.5 text-brand-600" />
+                  <label className="font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <KeyRound className="w-4 h-4 text-brand-600" />
                     Doctor Account Password *
                   </label>
                   <button
                     type="button"
                     onClick={handleGeneratePassword}
-                    className="text-[11px] font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1"
+                    className="text-[11px] font-bold text-brand-600 hover:text-brand-800 flex items-center gap-1 bg-brand-50 px-2 py-0.5 rounded-lg border border-brand-200"
                   >
                     <RefreshCw className="w-3 h-3" />
-                    <span>Generate Strong Password</span>
+                    <span>Generate Strong</span>
                   </button>
                 </div>
                 <div className="relative">
@@ -446,30 +451,30 @@ Please sign in and set up your weekly consultation availability.`;
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full p-2.5 pr-10 border border-warm-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm font-mono font-medium text-warm-900 bg-white"
+                    className="w-full p-3 pr-10 border-2 border-slate-300 rounded-xl outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 text-sm font-mono font-bold text-slate-900 bg-white"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-warm-400 hover:text-warm-600"
+                    className="absolute right-3 top-3 text-slate-400 hover:text-slate-700"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                <p className="text-[10px] text-warm-500">
+                <p className="text-[11px] text-slate-500 font-medium">
                   This password will be displayed for you to copy and convey to the doctor once created.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-warm-700 uppercase tracking-wider mb-1">
+                  <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
                     Specialization *
                   </label>
                   <select
                     value={specialization}
                     onChange={(e) => setSpecialization(e.target.value)}
-                    className="w-full p-3 border border-warm-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-xs font-semibold text-warm-900 bg-white"
+                    className="w-full p-3.5 border-2 border-slate-300 bg-slate-50/70 hover:border-slate-400 focus:border-slate-900 focus:bg-white text-xs font-bold text-slate-900 rounded-xl outline-none transition-all"
                   >
                     <option>Cardiology</option>
                     <option>General Medicine</option>
@@ -481,13 +486,13 @@ Please sign in and set up your weekly consultation availability.`;
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold text-warm-700 uppercase tracking-wider mb-1">
+                  <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
                     Slot Duration
                   </label>
                   <select
                     value={slotDurationMinutes}
                     onChange={(e) => setSlotDurationMinutes(Number(e.target.value))}
-                    className="w-full p-3 border border-warm-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-xs font-semibold text-warm-900 bg-white"
+                    className="w-full p-3.5 border-2 border-slate-300 bg-slate-50/70 hover:border-slate-400 focus:border-slate-900 focus:bg-white text-xs font-bold text-slate-900 rounded-xl outline-none transition-all"
                   >
                     <option value={15}>15 Minutes</option>
                     <option value={30}>30 Minutes (Standard)</option>
@@ -498,7 +503,7 @@ Please sign in and set up your weekly consultation availability.`;
               </div>
 
               <div>
-                <label className="block font-bold text-warm-700 uppercase tracking-wider mb-1">
+                <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
                   Phone Number (Optional)
                 </label>
                 <input
@@ -506,12 +511,12 @@ Please sign in and set up your weekly consultation availability.`;
                   placeholder="+91 98765 43210"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full p-3 border border-warm-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm font-medium text-warm-900"
+                  className="w-full p-3.5 border-2 border-slate-300 bg-slate-50/70 hover:border-slate-400 focus:border-slate-900 focus:bg-white text-slate-900 text-sm font-semibold rounded-xl outline-none transition-all"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-warm-700 uppercase tracking-wider mb-1">
+                <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
                   Doctor Biography & Credentials
                 </label>
                 <textarea
@@ -519,28 +524,28 @@ Please sign in and set up your weekly consultation availability.`;
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   placeholder="MBBS, MD - Dedicated specialist with 10+ years outpatient experience..."
-                  className="w-full p-3 border border-warm-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-xs font-medium text-warm-900"
+                  className="w-full p-3.5 border-2 border-slate-300 bg-slate-50/70 hover:border-slate-400 focus:border-slate-900 focus:bg-white text-slate-900 text-xs font-medium rounded-xl outline-none transition-all"
                 />
               </div>
 
-              <div className="pt-3 border-t border-warm-100 flex justify-end space-x-3">
+              <div className="pt-4 border-t-2 border-slate-100 flex justify-end space-x-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 font-bold text-warm-600 hover:text-warm-800"
+                  className="px-5 py-3 font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn-amber !py-2.5 !px-6 text-xs shadow-md flex items-center space-x-2"
+                  className="px-7 py-3 bg-slate-900 hover:bg-black text-white font-bold rounded-xl shadow-lg transition-all flex items-center space-x-2"
                 >
                   {isSubmitting ? (
                     <span>Creating Doctor Account...</span>
                   ) : (
                     <>
-                      <Check className="w-4 h-4" />
+                      <Check className="w-4 h-4 text-emerald-400" />
                       <span>Appoint Doctor</span>
                     </>
                   )}

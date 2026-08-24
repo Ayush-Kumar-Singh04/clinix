@@ -75,33 +75,40 @@ export default function SymptomAIModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
-          <div>
-            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <ClipboardList className="w-5 h-5 text-brand-600" />
-              Symptom Intake & Pre-Visit Review
-            </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Booking with <strong className="text-slate-700">{doctorName}</strong> at <strong>{selectedSlotTime}</strong>
-            </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border-2 border-slate-300 ring-4 ring-black/10 max-h-[90vh] overflow-y-auto space-y-4">
+        <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-9 h-9 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center border border-brand-200">
+              <ClipboardList className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-900 font-serif">
+                Symptom Intake & Consultation
+              </h3>
+              <p className="text-xs text-slate-500 font-sans">
+                Booking with <strong className="text-slate-800">{doctorName}</strong> on <strong>{selectedSlotTime}</strong>
+              </p>
+            </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl font-bold">
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 font-bold text-lg flex items-center justify-center transition-colors"
+          >
             ×
           </button>
         </div>
 
         {errorMsg && (
-          <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs flex items-center gap-2">
+          <div className="bg-rose-50 border-2 border-rose-300 text-rose-700 p-3.5 rounded-xl text-xs font-bold flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {/* Symptom Input */}
-        <div className="space-y-3 mb-5">
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+        <div className="space-y-2">
+          <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
             Describe Your Symptoms / Chief Complaint *
           </label>
           <textarea
@@ -109,24 +116,24 @@ export default function SymptomAIModal({
             value={symptoms}
             onChange={(e) => setSymptoms(e.target.value)}
             placeholder="e.g. Experiencing mild chest tightness, shortness of breath after light exertion for 2 days..."
-            className="w-full p-3.5 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all"
+            className="w-full p-3.5 border-2 border-slate-300 bg-slate-50/70 hover:border-slate-400 focus:border-slate-900 focus:bg-white focus:ring-4 focus:ring-slate-900/10 text-slate-900 text-sm font-semibold rounded-2xl outline-none transition-all shadow-xs"
           />
 
           {!aiSummary && (
             <button
               onClick={handleGenerateAI}
               disabled={isGeneratingAI || !symptoms.trim()}
-              className="w-full py-3 bg-gradient-to-r from-brand-600 to-teal-600 hover:from-brand-700 hover:to-teal-700 text-white font-semibold text-sm rounded-xl flex items-center justify-center space-x-2 shadow-md shadow-brand-500/20 transition-all disabled:opacity-50"
+              className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl flex items-center justify-center space-x-2 border border-slate-300 transition-all disabled:opacity-50"
             >
               {isGeneratingAI ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Preparing Intake...</span>
+                  <Loader2 className="w-4 h-4 animate-spin text-brand-600" />
+                  <span>Analyzing Intake Symptoms...</span>
                 </>
               ) : (
                 <>
-                  <Activity className="w-4 h-4" />
-                  <span>Review Clinical Intake</span>
+                  <Activity className="w-4 h-4 text-brand-600" />
+                  <span>Preview AI Clinical Summary (Optional)</span>
                 </>
               )}
             </button>
@@ -135,9 +142,9 @@ export default function SymptomAIModal({
 
         {/* Output Card */}
         {aiSummary && (
-          <div className="bg-brand-50/60 border border-brand-200 rounded-2xl p-4 space-y-3 mb-6 animate-fadeIn">
+          <div className="bg-slate-50 border-2 border-slate-300 rounded-2xl p-4 space-y-3 animate-fadeIn">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-brand-900 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                 <ClipboardList className="w-4 h-4 text-brand-600" />
                 Pre-Visit Clinical Summary
               </span>
@@ -156,12 +163,12 @@ export default function SymptomAIModal({
 
             <div>
               <span className="text-xs font-semibold text-slate-500">Chief Complaint:</span>
-              <p className="text-sm font-medium text-slate-800 mt-0.5">{aiSummary.chiefComplaint}</p>
+              <p className="text-sm font-semibold text-slate-900 mt-0.5">{aiSummary.chiefComplaint}</p>
             </div>
 
             <div>
               <span className="text-xs font-semibold text-slate-500">Suggested Doctor Questions:</span>
-              <ul className="list-disc list-inside text-xs text-slate-700 space-y-1 mt-1">
+              <ul className="list-disc list-inside text-xs text-slate-800 font-medium space-y-1 mt-1">
                 {aiSummary.suggestedQuestions.map((q: string, idx: number) => (
                   <li key={idx}>{q}</li>
                 ))}
@@ -169,7 +176,7 @@ export default function SymptomAIModal({
             </div>
 
             {/* MANDATORY AI DISCLAIMER */}
-            <div className="bg-white/80 p-2.5 rounded-xl border border-slate-200 flex items-start space-x-2 text-[11px] text-slate-600">
+            <div className="bg-white p-2.5 rounded-xl border border-slate-200 flex items-start space-x-2 text-[11px] text-slate-600">
               <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
               <span>{aiSummary.disclaimer || "AI-generated workflow summary. Not a medical diagnosis."}</span>
             </div>
@@ -177,26 +184,26 @@ export default function SymptomAIModal({
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-end space-x-3 pt-2 border-t border-slate-100">
+        <div className="flex items-center justify-end space-x-3 pt-3 border-t-2 border-slate-100">
           <button
             onClick={onClose}
-            className="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors"
+            className="px-5 py-3 font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={() => onConfirmBooking(symptoms, aiSummary)}
             disabled={isSubmitting || !symptoms.trim()}
-            className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm rounded-xl shadow-md shadow-brand-500/20 transition-all flex items-center space-x-2 disabled:opacity-50"
+            className="px-7 py-3 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center space-x-2 disabled:opacity-50"
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin text-amber-300" />
                 <span>Confirming Booking...</span>
               </>
             ) : (
               <>
-                <CheckCircle2 className="w-4 h-4" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 <span>Complete Appointment Booking</span>
               </>
             )}

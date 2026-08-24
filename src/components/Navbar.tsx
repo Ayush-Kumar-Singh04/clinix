@@ -33,17 +33,8 @@ export default function Navbar() {
 
   const isLanding = pathname === "/";
 
-  // Helper to get the dashboard path for the current user
-  const getDashboardPath = () => {
-    if (!currentUser) return "/register";
-    if (currentUser.role === "PATIENT") return "/patient";
-    if (currentUser.role === "DOCTOR") return "/doctor";
-    if (currentUser.role === "ADMIN") return "/admin";
-    return "/";
-  };
-
   return (
-    <header className="sticky top-0 z-50 bg-[#FAF6F1]/95 backdrop-blur-md border-b border-warm-200/60 shadow-xs">
+    <header className="sticky top-0 z-50 bg-[#F5EFEB]/95 backdrop-blur-md border-b-2 border-warm-300/80 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         {/* Left Side: Brand Logo (Aligned Left) */}
@@ -54,24 +45,24 @@ export default function Navbar() {
         </div>
 
         {/* Center: Navigation Links (Strictly Centered) */}
-        <nav className="hidden md:flex items-center justify-center space-x-1.5 text-sm font-medium">
+        <nav className="hidden md:flex items-center justify-center space-x-1.5 text-sm font-semibold">
           {isLanding && !currentUser && (
             <>
               <a
                 href="#features"
-                className="px-4 py-2 rounded-xl transition-colors text-warm-700 hover:text-brand-600 hover:bg-warm-100/60"
+                className="px-3.5 py-1.5 rounded-xl transition-colors text-warm-700 hover:text-slate-900 hover:bg-white/80"
               >
                 Features
               </a>
               <a
                 href="#how-it-works"
-                className="px-4 py-2 rounded-xl transition-colors text-warm-700 hover:text-brand-600 hover:bg-warm-100/60"
+                className="px-3.5 py-1.5 rounded-xl transition-colors text-warm-700 hover:text-slate-900 hover:bg-white/80"
               >
                 How it works
               </a>
               <a
                 href="#reviews"
-                className="px-4 py-2 rounded-xl transition-colors text-warm-700 hover:text-brand-600 hover:bg-warm-100/60"
+                className="px-3.5 py-1.5 rounded-xl transition-colors text-warm-700 hover:text-slate-900 hover:bg-white/80"
               >
                 Reviews
               </a>
@@ -81,7 +72,7 @@ export default function Navbar() {
           {!isLanding && (
             <Link
               href="/"
-              className="px-4 py-2 rounded-xl transition-colors text-warm-700 hover:text-warm-900 hover:bg-warm-100/60"
+              className="px-3.5 py-1.5 rounded-xl transition-colors text-warm-700 hover:text-slate-900 hover:bg-white/80"
             >
               Home
             </Link>
@@ -91,30 +82,30 @@ export default function Navbar() {
             <>
               <Link
                 href="/patient"
-                className={`px-4 py-2 rounded-xl transition-colors ${
+                className={`px-3.5 py-1.5 rounded-xl transition-all ${
                   pathname.startsWith("/patient") && !pathname.includes("/doctors") && !pathname.includes("/prescriptions")
-                    ? "text-brand-800 bg-brand-100 font-semibold"
-                    : "text-warm-700 hover:text-warm-900 hover:bg-warm-100/60"
+                    ? "text-slate-900 bg-white border border-warm-300 shadow-xs font-bold"
+                    : "text-warm-700 hover:text-slate-900 hover:bg-white/80"
                 }`}
               >
                 Dashboard
               </Link>
               <Link
                 href="/patient/doctors"
-                className={`px-4 py-2 rounded-xl transition-colors ${
+                className={`px-3.5 py-1.5 rounded-xl transition-all ${
                   pathname.includes("/doctors")
-                    ? "text-brand-800 bg-brand-100 font-semibold"
-                    : "text-warm-700 hover:text-warm-900 hover:bg-warm-100/60"
+                    ? "text-slate-900 bg-white border border-warm-300 shadow-xs font-bold"
+                    : "text-warm-700 hover:text-slate-900 hover:bg-white/80"
                 }`}
               >
                 Book Doctor
               </Link>
               <Link
                 href="/patient/prescriptions"
-                className={`px-4 py-2 rounded-xl transition-colors ${
+                className={`px-3.5 py-1.5 rounded-xl transition-all ${
                   pathname.includes("/prescriptions")
-                    ? "text-brand-800 bg-brand-100 font-semibold"
-                    : "text-warm-700 hover:text-warm-900 hover:bg-warm-100/60"
+                    ? "text-slate-900 bg-white border border-warm-300 shadow-xs font-bold"
+                    : "text-warm-700 hover:text-slate-900 hover:bg-white/80"
                 }`}
               >
                 Medications
@@ -126,20 +117,20 @@ export default function Navbar() {
             <>
               <Link
                 href="/doctor"
-                className={`px-4 py-2 rounded-xl transition-colors ${
+                className={`px-3.5 py-1.5 rounded-xl transition-all ${
                   pathname === "/doctor"
-                    ? "text-brand-800 bg-brand-100 font-semibold"
-                    : "text-warm-700 hover:text-warm-900 hover:bg-warm-100/60"
+                    ? "text-slate-900 bg-white border border-warm-300 shadow-xs font-bold"
+                    : "text-warm-700 hover:text-slate-900 hover:bg-white/80"
                 }`}
               >
                 Dashboard
               </Link>
               <Link
                 href="/doctor/leave"
-                className={`px-4 py-2 rounded-xl transition-colors ${
+                className={`px-3.5 py-1.5 rounded-xl transition-all ${
                   pathname.startsWith("/doctor/leave")
-                    ? "text-brand-800 bg-brand-100 font-semibold"
-                    : "text-warm-700 hover:text-warm-900 hover:bg-warm-100/60"
+                    ? "text-slate-900 bg-white border border-warm-300 shadow-xs font-bold"
+                    : "text-warm-700 hover:text-slate-900 hover:bg-white/80"
                 }`}
               >
                 Apply Leave
@@ -151,20 +142,30 @@ export default function Navbar() {
             <>
               <Link
                 href="/admin"
-                className={`px-4 py-2 rounded-xl transition-colors ${
+                className={`px-3.5 py-1.5 rounded-xl transition-all ${
                   pathname === "/admin"
-                    ? "text-brand-800 bg-brand-100 font-semibold"
-                    : "text-warm-700 hover:text-warm-900 hover:bg-warm-100/60"
+                    ? "text-slate-900 bg-white border border-warm-300 shadow-xs font-bold"
+                    : "text-warm-700 hover:text-slate-900 hover:bg-white/80"
                 }`}
               >
                 Dashboard
               </Link>
               <Link
+                href="/admin/doctors"
+                className={`px-3.5 py-1.5 rounded-xl transition-all ${
+                  pathname === "/admin/doctors"
+                    ? "text-slate-900 bg-white border border-warm-300 shadow-xs font-bold"
+                    : "text-warm-700 hover:text-slate-900 hover:bg-white/80"
+                }`}
+              >
+                Doctor Staff
+              </Link>
+              <Link
                 href="/admin/leave"
-                className={`px-4 py-2 rounded-xl transition-colors ${
+                className={`px-3.5 py-1.5 rounded-xl transition-all ${
                   pathname.startsWith("/admin/leave")
-                    ? "text-brand-800 bg-brand-100 font-semibold"
-                    : "text-warm-700 hover:text-warm-900 hover:bg-warm-100/60"
+                    ? "text-slate-900 bg-white border border-warm-300 shadow-xs font-bold"
+                    : "text-warm-700 hover:text-slate-900 hover:bg-white/80"
                 }`}
               >
                 Doctor Leaves & Conflicts
@@ -177,19 +178,19 @@ export default function Navbar() {
         <div className="flex-1 flex items-center justify-end space-x-3">
           {currentUser ? (
             <div className="flex items-center space-x-3">
-              <span className="hidden sm:inline-block text-xs font-semibold px-2.5 py-1 rounded-md bg-warm-100 text-warm-700 border border-warm-200 uppercase tracking-wide">
+              <span className="hidden sm:inline-block text-[11px] font-bold px-3 py-1 rounded-full bg-slate-900 text-amber-300 border border-slate-800 uppercase tracking-wider shadow-xs">
                 {currentUser.role}
               </span>
-              <div className="flex items-center space-x-2.5 border-l pl-3 border-warm-200">
-                <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-xs border border-brand-200 shadow-2xs">
+              <div className="flex items-center space-x-2.5 border-l-2 pl-3 border-warm-300">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-600 to-teal-500 text-white flex items-center justify-center font-bold text-xs border border-white shadow-sm">
                   {currentUser.name.charAt(0)}
                 </div>
-                <span className="hidden lg:inline text-sm font-medium text-warm-800">
+                <span className="hidden lg:inline text-xs font-bold text-slate-800">
                   {currentUser.name}
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="p-1.5 rounded-lg text-warm-400 hover:text-rose-600 hover:bg-rose-50 transition-colors ml-1"
+                  className="p-1.5 rounded-lg text-warm-500 hover:text-rose-600 hover:bg-rose-50 transition-colors ml-1"
                   title="Sign Out"
                 >
                   <LogOut className="w-4 h-4" />
@@ -200,13 +201,13 @@ export default function Navbar() {
             <div className="flex items-center space-x-2">
               <Link
                 href="/login"
-                className="px-4 py-2 text-sm font-medium transition-colors text-warm-700 hover:text-brand-600"
+                className="px-4 py-2 text-sm font-semibold transition-colors text-warm-800 hover:text-slate-900"
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className="btn-amber !py-2 !px-5 !text-sm"
+                className="btn-amber !py-2 !px-5 !text-xs shadow-sm font-bold"
               >
                 <span>Get started</span>
                 <ArrowRight className="w-4 h-4" />
