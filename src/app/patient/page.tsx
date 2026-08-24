@@ -146,7 +146,7 @@ export default function PatientDashboard() {
             </Link>
             <a
               href="/api/calendar/connect"
-              className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-full border border-white/20 backdrop-blur-md transition-all flex items-center space-x-2 shrink-0"
+              className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/20 backdrop-blur-md transition-all flex items-center space-x-2 shrink-0"
             >
               <CalendarPlus className="w-4 h-4 text-amber-300" />
               <span>Sync Calendar</span>
@@ -304,7 +304,7 @@ export default function PatientDashboard() {
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => setIsEmailDoctorModalOpen(true)}
-                      className="px-3.5 py-2 bg-brand-50 hover:bg-brand-100 text-brand-800 font-semibold text-xs rounded-full border border-brand-200 transition-all flex items-center space-x-1.5 shadow-2xs"
+                      className="px-3.5 py-2 bg-brand-50 hover:bg-brand-100 text-brand-800 font-semibold text-xs rounded-xl border border-brand-200 transition-all flex items-center space-x-1.5 shadow-2xs"
                     >
                       <Mail className="w-3.5 h-3.5 text-brand-600" />
                       <span>Email Doctor</span>

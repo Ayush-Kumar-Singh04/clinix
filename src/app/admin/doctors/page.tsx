@@ -771,9 +771,9 @@ Please sign in to configure your consultation schedule.`;
                     {proficiencies.map((prof: string, idx: number) => (
                       <span
                         key={idx}
-                        className="bg-white text-slate-800 font-semibold px-3 py-1 rounded-lg border border-slate-300 text-xs shadow-xs"
+                        className="bg-white text-slate-800 font-medium px-3 py-1 rounded-lg border border-slate-300 text-xs shadow-xs"
                       >
-                        ✦ {prof}
+                        {prof}
                       </span>
                     ))}
                   </div>

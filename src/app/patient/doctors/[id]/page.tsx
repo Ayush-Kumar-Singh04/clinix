@@ -239,9 +239,9 @@ export default function DoctorDetailPage() {
                 {proficiencies.map((item: string, idx: number) => (
                   <span
                     key={idx}
-                    className="text-xs font-semibold bg-brand-50/60 text-brand-900 px-3 py-1 rounded-xl border border-brand-200/80 shadow-xs"
+                    className="text-xs font-medium bg-brand-50 text-brand-900 px-3 py-1 rounded-xl border border-brand-200"
                   >
-                    ✦ {item}
+                    {item}
                   </span>
                 ))}
               </div>

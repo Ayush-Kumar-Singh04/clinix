@@ -169,7 +169,7 @@ export default function SearchDoctorsPage() {
                           key={i}
                           className="text-[11px] font-medium bg-slate-50 text-slate-700 px-2 py-0.5 rounded-lg border border-slate-200"
                         >
-                          ✦ {prof}
+                          {prof}
                         </span>
                       ))}
                       {proficiencies.length > 3 && (

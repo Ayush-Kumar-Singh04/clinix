@@ -25,8 +25,8 @@ function CalendarSyncContent() {
         </div>
 
         <div className="space-y-2 max-w-md mx-auto">
-          <div className="inline-flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="inline-flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 px-3 py-1 rounded-xl text-xs font-semibold border border-emerald-200">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             <span>Google Calendar Connected</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif text-warm-900 tracking-tight">
