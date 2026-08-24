@@ -176,33 +176,35 @@ export default function DoctorDetailPage() {
           <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-slate-200 shadow-sm space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-start space-x-4">
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-brand-600 to-teal-500 text-white flex items-center justify-center font-bold text-3xl shadow-lg shadow-brand-500/20 overflow-hidden shrink-0 border-2 border-white">
+                <div className="w-20 h-20 min-w-[80px] min-h-[80px] max-w-[80px] max-h-[80px] rounded-3xl bg-gradient-to-tr from-brand-600 to-teal-500 text-white flex items-center justify-center font-bold text-3xl shadow-md overflow-hidden shrink-0 border-2 border-white">
                   {doctor.avatarUrl ? (
-                    <img src={doctor.avatarUrl} alt={doctor.user.name} className="w-full h-full object-cover" />
+                    <img src={doctor.avatarUrl} alt={doctor.user.name} className="w-full h-full object-cover object-center block" />
                   ) : (
                     <span>{doctor.user.name.charAt(0)}</span>
                   )}
                 </div>
                 <div className="space-y-1.5">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-serif">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 font-serif">
                       Dr. {doctor.user.name}
                     </h1>
-                    <div className="flex items-center space-x-1.5 bg-amber-50 border border-amber-300 text-amber-900 px-3 py-1 rounded-full text-xs font-bold shadow-xs">
+                    <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-800">
                       <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
                       <span>{ratingDetails.rating}</span>
                       <span className="text-slate-400 font-normal">({ratingDetails.reviewsCount} verified reviews)</span>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                    <span className="text-xs font-bold text-brand-700 bg-brand-50 px-3 py-0.5 rounded-full border border-brand-200">
+                  <div className="flex flex-wrap items-center gap-2 pt-0.5 text-xs font-semibold">
+                    <span className="text-brand-700">
                       {doctor.specialization}
                     </span>
-                    <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-0.5 rounded-full border border-emerald-200">
-                      {ratingDetails.experienceYears}+ Years Clinical Experience
+                    <span className="text-slate-300">•</span>
+                    <span className="text-emerald-700">
+                      {ratingDetails.experienceYears}+ Years Experience
                     </span>
-                    <span className="text-xs font-bold text-indigo-800 bg-indigo-50 px-3 py-0.5 rounded-full border border-indigo-200">
+                    <span className="text-slate-300">•</span>
+                    <span className="text-indigo-700">
                       {ratingDetails.recommendationRate}% Patient Satisfaction
                     </span>
                   </div>
