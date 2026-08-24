@@ -20,6 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+      </head>
       <body className="flex flex-col min-h-screen antialiased bg-cream text-warm-900 selection:bg-brand-500 selection:text-white">
         <Navbar />
         <main className="flex-1">{children}</main>

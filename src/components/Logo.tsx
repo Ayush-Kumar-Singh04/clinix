@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useId } from "react";
 
 interface LogoProps {
   size?: number;
@@ -13,6 +15,9 @@ export default function Logo({
   className = "",
   wordmarkClassName = "",
 }: LogoProps) {
+  const rawId = useId();
+  const gradientId = `clinixGrad_${rawId.replace(/[^a-zA-Z0-9]/g, "")}`;
+
   return (
     <div className={`clinix-logo ${className}`}>
       <svg
@@ -27,12 +32,12 @@ export default function Logo({
           cx="16"
           cy="16"
           r="15"
-          stroke="url(#clinixGradient)"
+          stroke={`url(#${gradientId})`}
           strokeWidth="2"
         />
         <path
           d="M6 16 H11 L13 10 L17 22 L20 16 H26"
-          stroke="url(#clinixGradient)"
+          stroke={`url(#${gradientId})`}
           strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -40,7 +45,7 @@ export default function Logo({
         />
         <defs>
           <linearGradient
-            id="clinixGradient"
+            id={gradientId}
             x1="0"
             y1="0"
             x2="32"
