@@ -43,7 +43,7 @@ export async function generatePreVisitSummary(symptoms: string): Promise<PreVisi
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 9000);
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
 
     const prompt = `Analyze the following patient reported symptoms and create a concise pre-visit workflow summary for a licensed healthcare professional.
 
@@ -140,7 +140,7 @@ export async function generatePostVisitSummary(
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 9000);
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
 
     const prompt = `Convert the following doctor's clinical visit notes and prescribed medications into a clear, patient-friendly summary.
 

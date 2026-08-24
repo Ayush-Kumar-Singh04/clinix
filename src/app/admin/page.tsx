@@ -159,20 +159,20 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           <Link
             href="/admin/doctors"
-            className="btn-amber !text-xs !py-2.5 shrink-0"
+            className="btn-amber !text-xs !py-2.5 shrink-0 flex items-center space-x-1.5 shadow-md"
           >
             <Stethoscope className="w-4 h-4" />
-            <span>Manage Doctors</span>
+            <span>Appoint New Doctor</span>
           </Link>
           <Link
             href="/admin/leave"
             className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-full border border-white/20 transition-all flex items-center space-x-2"
           >
             <Calendar className="w-4 h-4" />
-            <span>Doctor Leave Conflicts</span>
+            <span>Leave Conflicts</span>
           </Link>
         </div>
       </div>
