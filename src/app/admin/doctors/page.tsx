@@ -948,15 +948,15 @@ Please sign in to configure your consultation schedule.`;
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-warm-50/80 border-b border-warm-200/80 text-warm-600 font-bold uppercase tracking-wider">
-                  <th className="p-4">Physician (Click to View)</th>
+                <tr className="bg-warm-50/80 border-b border-warm-200/80 text-warm-600 font-bold uppercase tracking-wider text-[11px]">
+                  <th className="p-4">Physician</th>
                   <th className="p-4">Specialization</th>
                   <th className="p-4">Rating</th>
                   <th className="p-4">Slot Duration</th>
                   <th className="p-4">Contact</th>
-                  <th className="p-4">Roster Status</th>
+                  <th className="p-4">Status</th>
                   <th className="p-4">Consultations</th>
-                  <th className="p-4 text-right">Roster Actions</th>
+                  <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-warm-100 font-medium text-warm-800">
@@ -982,64 +982,63 @@ Please sign in to configure your consultation schedule.`;
                             )}
                           </div>
                           <div>
-                            <div className="font-bold text-sm text-warm-900 font-serif group-hover:text-brand-600 transition-colors flex items-center gap-1">
-                              <span>Dr. {doc.user.name}</span>
-                              <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-brand-600" />
+                            <div className="font-bold text-sm text-slate-900 group-hover:text-brand-600 transition-colors font-serif">
+                              Dr. {doc.user.name}
                             </div>
-                            <div className="text-warm-500 text-[11px] font-mono">{doc.user.email}</div>
+                            <div className="text-slate-500 text-[11px] font-mono">{doc.user.email}</div>
                           </div>
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className="bg-brand-50 text-brand-700 font-bold px-2.5 py-0.5 rounded-full border border-brand-200">
+                        <span className="font-semibold text-slate-800 text-xs">
                           {doc.specialization}
                         </span>
                       </td>
                       <td className="p-4">
-                        <div className="flex items-center space-x-1 font-bold text-amber-900">
+                        <div className="flex items-center space-x-1 font-semibold text-slate-900 text-xs">
                           <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
                           <span>{ratingDetails.rating}</span>
-                          <span className="text-[10px] text-slate-400 font-normal">({ratingDetails.reviewsCount})</span>
+                          <span className="text-[11px] text-slate-400 font-normal">({ratingDetails.reviewsCount})</span>
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className="flex items-center space-x-1 text-warm-700">
-                          <Clock className="w-3.5 h-3.5 text-warm-400" />
-                          <span>{doc.slotDurationMinutes} mins</span>
+                        <span className="text-slate-700 text-xs">
+                          {doc.slotDurationMinutes} mins
                         </span>
                       </td>
-                      <td className="p-4 text-warm-600">
+                      <td className="p-4 text-slate-600">
                         {doc.user.phone ? (
-                          <span className="flex items-center space-x-1 font-mono text-[11px]">
-                            <Phone className="w-3 h-3 text-warm-400" />
-                            <span>{doc.user.phone}</span>
+                          <span className="font-mono text-[11px] text-slate-700">
+                            {doc.user.phone}
                           </span>
                         ) : (
-                          <span className="text-warm-400 italic">Not set</span>
+                          <span className="text-slate-400 italic text-xs">Not set</span>
                         )}
                       </td>
                       <td className="p-4">
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] uppercase ${
-                            doc.isActive
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : "bg-warm-100 text-warm-500 border border-warm-200"
-                          }`}
-                        >
-                          {doc.isActive ? "Active on Roster" : "Inactive"}
-                        </span>
+                        {doc.isActive ? (
+                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                            <span>Active</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+                            <span className="w-2 h-2 rounded-full bg-slate-400 shrink-0"></span>
+                            <span>Inactive</span>
+                          </span>
+                        )}
                       </td>
-                      <td className="p-4 font-bold text-warm-900">
-                        {doc._count?.doctorAppointments || 0} Appointments
+                      <td className="p-4 font-semibold text-slate-900 text-xs">
+                        {doc._count?.doctorAppointments || 0}
                       </td>
                       <td className="p-4 text-right">
                         <div className="flex items-center justify-end space-x-2">
                           <button
                             onClick={() => handleToggleActive(doc.id, doc.isActive)}
-                            className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                            className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
                               doc.isActive
-                                ? "bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-300"
-                                : "bg-emerald-50 text-emerald-900 hover:bg-emerald-100 border border-emerald-300"
+                                ? "text-amber-800 hover:bg-amber-50 border border-amber-300"
+                                : "text-emerald-800 hover:bg-emerald-50 border border-emerald-300"
                             }`}
                           >
                             {doc.isActive ? "Deactivate" : "Activate"}
@@ -1047,11 +1046,11 @@ Please sign in to configure your consultation schedule.`;
 
                           <button
                             onClick={() => setDoctorToOffboard(doc)}
-                            className="px-3 py-1 rounded-full text-xs font-bold text-rose-800 bg-rose-100 hover:bg-rose-200 border border-rose-300 transition-colors flex items-center space-x-1 shadow-xs"
+                            className="px-3 py-1 rounded-lg text-xs font-bold text-rose-700 hover:bg-rose-50 border border-rose-300 transition-colors flex items-center space-x-1"
                             title="Offboard / Remove Doctor"
                           >
-                            <Trash2 className="w-3.5 h-3.5 text-rose-700" />
-                            <span>Remove Doctor</span>
+                            <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                            <span>Remove</span>
                           </button>
                         </div>
                       </td>
