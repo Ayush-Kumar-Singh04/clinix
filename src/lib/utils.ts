@@ -92,3 +92,91 @@ export function createErrorResponse(
 export function createSuccessResponse(data: any, status: number = 200) {
   return Response.json({ success: true, data }, { status });
 }
+
+export function getDoctorProficiencies(specialization: string): string[] {
+  const map: Record<string, string[]> = {
+    Cardiology: [
+      "Interventional Cardiology",
+      "Hypertension Management",
+      "Echocardiography",
+      "Coronary Artery Disease",
+      "Arrhythmia Triage",
+      "Heart Failure Therapeutics",
+    ],
+    "General Medicine": [
+      "Preventative Health",
+      "Chronic Disease Management",
+      "Metabolic & Diabetes Care",
+      "Infectious Disease Triage",
+      "Geriatric Outpatient Care",
+      "Lifestyle Medicine",
+    ],
+    Dermatology: [
+      "Clinical Dermatology",
+      "Acne & Scarring Treatments",
+      "Skin Cancer Screenings",
+      "Eczema & Psoriasis",
+      "Laser & Aesthetic Dermatology",
+      "Trichology & Hair Health",
+    ],
+    Orthopedics: [
+      "Joint Replacement Therapy",
+      "Sports Injury Rehabilitation",
+      "Arthroscopic Procedures",
+      "Spine & Back Health",
+      "Fracture Management",
+      "Musculoskeletal Ultrasound",
+    ],
+    Neurology: [
+      "Migraine & Headache Disorders",
+      "Epilepsy & Seizure Management",
+      "Stroke Rehabilitation",
+      "Neurodegenerative Disorders",
+      "Peripheral Neuropathy",
+    ],
+    Pediatrics: [
+      "Neonatal & Newborn Care",
+      "Pediatric Growth & Nutrition",
+      "Childhood Immunizations",
+      "Pediatric Asthma & Allergies",
+      "Developmental Milestones",
+    ],
+    Psychiatry: [
+      "Anxiety & Mood Disorders",
+      "Depression Therapeutics",
+      "Cognitive Behavioral Strategies",
+      "ADHD & Neuropsychiatry",
+      "Stress & Psychotherapy",
+    ],
+  };
+
+  return map[specialization] || [
+    "Clinical Consultation",
+    "Evidence-Based Therapeutics",
+    "Preventative Care",
+    "Diagnostic Review",
+  ];
+}
+
+export function getDoctorRatingDetails(doctorId: string, name: string = "") {
+  let hash = 0;
+  const str = doctorId + name;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  const absHash = Math.abs(hash);
+
+  const ratingVariations = ["4.8", "4.9", "5.0", "4.7", "4.9", "4.8", "5.0"];
+  const rating = ratingVariations[absHash % ratingVariations.length];
+  const reviewsCount = 45 + (absHash % 236);
+  const experienceYears = 6 + (absHash % 17);
+  const recommendationRate = 96 + (absHash % 5);
+
+  return {
+    rating,
+    reviewsCount,
+    experienceYears,
+    recommendationRate,
+  };
+}

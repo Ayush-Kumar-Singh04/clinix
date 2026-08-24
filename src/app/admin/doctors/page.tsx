@@ -24,8 +24,14 @@ import {
   AlertTriangle,
   UserMinus,
   Mail,
+  Star,
+  Award,
+  Calendar,
+  ShieldCheck,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
+import { getDoctorProficiencies, getDoctorRatingDetails, formatDate } from "@/lib/utils";
 
 const PRESET_AVATARS = [
   { name: "Dr. Male 1", url: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=200&q=80" },
@@ -33,6 +39,8 @@ const PRESET_AVATARS = [
   { name: "Dr. Male 2", url: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=200&q=80" },
   { name: "Dr. Female 2", url: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&q=80" },
 ];
+
+const DAYS_MAP = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default function AdminDoctorManagementPage() {
   const [doctors, setDoctors] = useState<any[]>([]);
@@ -63,6 +71,9 @@ export default function AdminDoctorManagementPage() {
     avatarUrl?: string;
   } | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Selected Doctor Full Profile Modal State
+  const [selectedDoctorDetail, setSelectedDoctorDetail] = useState<any | null>(null);
 
   // Offboard / Remove Doctor Modal State
   const [doctorToOffboard, setDoctorToOffboard] = useState<any | null>(null);
@@ -126,6 +137,9 @@ export default function AdminDoctorManagementPage() {
       const data = await res.json();
       if (data.success) {
         fetchDoctors();
+        if (selectedDoctorDetail && selectedDoctorDetail.id === doctorId) {
+          setSelectedDoctorDetail({ ...selectedDoctorDetail, isActive: !currentStatus });
+        }
       }
     } catch (err) {
       console.error(err);
@@ -211,6 +225,7 @@ export default function AdminDoctorManagementPage() {
 
       setSuccessMsg(`Dr. ${doctorToOffboard.user.name} was offboarded and notice emailed to ${doctorToOffboard.user.email}.`);
       setDoctorToOffboard(null);
+      setSelectedDoctorDetail(null);
       setOffboardNote("");
       fetchDoctors();
     } catch (err) {
@@ -238,7 +253,7 @@ Please sign in to configure your consultation schedule.`;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      {/* Clean Header Bar (No Unnecessary Text) */}
+      {/* Clean Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <Link
@@ -379,7 +394,7 @@ Please sign in to configure your consultation schedule.`;
         </div>
       )}
 
-      {/* Appoint New Doctor Expandable In-Section Form */}
+      {/* Appoint New Doctor In-Section Form */}
       {isFormOpen && (
         <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-slate-300 ring-4 ring-black/5 space-y-5 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
@@ -601,7 +616,7 @@ Please sign in to configure your consultation schedule.`;
                 rows={2}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="MBBS, MD - Dedicated specialist with 10+ years outpatient experience..."
+                placeholder="MBBS, MD - Dedicated specialist with outpatient clinical experience..."
                 className="w-full p-3.5 border-2 border-slate-300 bg-slate-50/70 hover:border-slate-400 focus:border-slate-900 focus:bg-white text-slate-900 text-xs font-medium rounded-xl outline-none transition-all"
               />
             </div>
@@ -630,6 +645,193 @@ Please sign in to configure your consultation schedule.`;
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* ADMIN FULL PHYSICIAN PROFILE DOSSIER MODAL */}
+      {selectedDoctorDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border-2 border-slate-300 ring-4 ring-black/10 space-y-5 max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
+              <div className="flex items-center space-x-3.5">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-500 text-white font-bold text-xl flex items-center justify-center shadow-md overflow-hidden shrink-0 border-2 border-white">
+                  {selectedDoctorDetail.avatarUrl ? (
+                    <img
+                      src={selectedDoctorDetail.avatarUrl}
+                      alt={selectedDoctorDetail.user.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>{selectedDoctorDetail.user.name.charAt(0)}</span>
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 font-serif">
+                    Dr. {selectedDoctorDetail.user.name}
+                  </h3>
+                  <div className="flex items-center space-x-2 mt-0.5">
+                    <span className="bg-brand-50 text-brand-700 font-bold px-2.5 py-0.5 rounded-full text-xs border border-brand-200">
+                      {selectedDoctorDetail.specialization}
+                    </span>
+                    <span
+                      className={`text-xs px-2.5 py-0.5 rounded-full font-bold uppercase ${
+                        selectedDoctorDetail.isActive
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-slate-100 text-slate-600 border border-slate-300"
+                      }`}
+                    >
+                      {selectedDoctorDetail.isActive ? "Active on Roster" : "Inactive"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedDoctorDetail(null)}
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 font-bold text-lg flex items-center justify-center transition-colors"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Quick Metrics */}
+            {(() => {
+              const ratingDetails = getDoctorRatingDetails(selectedDoctorDetail.id, selectedDoctorDetail.user.name);
+              const proficiencies = getDoctorProficiencies(selectedDoctorDetail.specialization);
+
+              return (
+                <div className="space-y-4 text-xs">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 border-2 border-slate-200 rounded-2xl p-3.5 text-center">
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
+                      <div className="text-[10px] text-slate-400 uppercase font-bold">Rating</div>
+                      <div className="font-bold text-amber-900 text-sm flex items-center justify-center gap-1 mt-0.5">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                        <span>{ratingDetails.rating}</span>
+                      </div>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
+                      <div className="text-[10px] text-slate-400 uppercase font-bold">Reviews</div>
+                      <div className="font-bold text-slate-800 text-sm mt-0.5">{ratingDetails.reviewsCount}</div>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
+                      <div className="text-[10px] text-slate-400 uppercase font-bold">Consultations</div>
+                      <div className="font-bold text-brand-700 text-sm mt-0.5">{selectedDoctorDetail._count?.doctorAppointments || 0}</div>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200">
+                      <div className="text-[10px] text-slate-400 uppercase font-bold">Experience</div>
+                      <div className="font-bold text-emerald-700 text-sm mt-0.5">{ratingDetails.experienceYears}+ Yrs</div>
+                    </div>
+                  </div>
+
+                  {/* Administrative & Contact Dossier */}
+                  <div className="bg-white border-2 border-slate-200 rounded-2xl p-4 space-y-2.5">
+                    <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-100 flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 text-brand-600" />
+                      <span>Physician Credentials & Contact</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <span className="text-slate-400 text-[11px]">Login Email:</span>
+                        <div className="font-mono font-bold text-slate-800">{selectedDoctorDetail.user.email}</div>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 text-[11px]">Phone Number:</span>
+                        <div className="font-bold text-slate-800">{selectedDoctorDetail.user.phone || "Not provided"}</div>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 text-[11px]">Consultation Slot Duration:</span>
+                        <div className="font-bold text-slate-800">{selectedDoctorDetail.slotDurationMinutes} Minutes</div>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 text-[11px]">Doctor Record ID:</span>
+                        <div className="font-mono text-[11px] text-slate-600 truncate">{selectedDoctorDetail.id}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Clinical Proficiencies */}
+                  <div className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 space-y-2">
+                    <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                      <Award className="w-3.5 h-3.5 text-brand-600" />
+                      <span>Clinical Proficiencies & Specializations</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {proficiencies.map((prof, idx) => (
+                        <span
+                          key={idx}
+                          className="bg-white text-slate-800 font-semibold px-2.5 py-1 rounded-lg border border-slate-300 text-xs shadow-xs"
+                        >
+                          ✦ {prof}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Biography */}
+                  <div className="bg-white border-2 border-slate-200 rounded-2xl p-4 space-y-1.5">
+                    <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px]">
+                      Physician Bio & Credentials
+                    </div>
+                    <p className="text-slate-700 leading-relaxed text-xs">
+                      {selectedDoctorDetail.bio || "No custom biography provided yet. Default clinical credentials applied."}
+                    </p>
+                  </div>
+
+                  {/* Working Hours Schedule */}
+                  <div className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 space-y-2">
+                    <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-brand-600" />
+                      <span>Weekly Clinic Schedule</span>
+                    </div>
+                    {selectedDoctorDetail.workingHours && selectedDoctorDetail.workingHours.length > 0 ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {selectedDoctorDetail.workingHours.map((wh: any) => (
+                          <div key={wh.id} className="bg-white p-2 rounded-xl border border-slate-200 text-xs">
+                            <span className="font-bold text-slate-800">{DAYS_MAP[wh.dayOfWeek] || `Day ${wh.dayOfWeek}`}:</span>{" "}
+                            <span className="text-brand-700 font-mono font-semibold">{wh.startTime} - {wh.endTime}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-slate-500 italic">Standard Monday–Friday (09:00 - 17:00)</div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-between pt-3 border-t-2 border-slate-100 text-xs">
+              <button
+                onClick={() => {
+                  setDoctorToOffboard(selectedDoctorDetail);
+                }}
+                className="px-4 py-2.5 font-bold text-rose-700 hover:bg-rose-50 border border-rose-300 rounded-xl transition-colors flex items-center space-x-1.5"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Offboard / Remove Doctor</span>
+              </button>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handleToggleActive(selectedDoctorDetail.id, selectedDoctorDetail.isActive)}
+                  className={`px-4 py-2.5 rounded-xl font-bold transition-colors ${
+                    selectedDoctorDetail.isActive
+                      ? "bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300"
+                      : "bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300"
+                  }`}
+                >
+                  {selectedDoctorDetail.isActive ? "Deactivate Account" : "Activate Account"}
+                </button>
+                <button
+                  onClick={() => setSelectedDoctorDetail(null)}
+                  className="px-5 py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl font-bold transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -742,104 +944,120 @@ Please sign in to configure your consultation schedule.`;
           Loading physician staff roster...
         </div>
       ) : (
-        <div className="bg-white rounded-3xl border border-warm-200/80 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-3xl border-2 border-warm-200/80 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-warm-50/80 border-b border-warm-200/80 text-warm-600 font-bold uppercase tracking-wider">
-                  <th className="p-4">Physician</th>
+                  <th className="p-4">Physician (Click to View)</th>
                   <th className="p-4">Specialization</th>
+                  <th className="p-4">Rating</th>
                   <th className="p-4">Slot Duration</th>
                   <th className="p-4">Contact</th>
                   <th className="p-4">Roster Status</th>
-                  <th className="p-4">Total Consultations</th>
-                  <th className="p-4 text-right">Actions</th>
+                  <th className="p-4">Consultations</th>
+                  <th className="p-4 text-right">Roster Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-warm-100 font-medium text-warm-800">
-                {doctors.map((doc) => (
-                  <tr key={doc.id} className="hover:bg-warm-50/50 transition-colors">
-                    <td className="p-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-500 text-white font-bold flex items-center justify-center shadow-sm overflow-hidden shrink-0 border border-slate-200">
-                          {doc.avatarUrl ? (
-                            <img
-                              src={doc.avatarUrl}
-                              alt={doc.user.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <span>{doc.user.name.charAt(0)}</span>
-                          )}
-                        </div>
-                        <div>
-                          <div className="font-bold text-sm text-warm-900 font-serif">
-                            Dr. {doc.user.name}
+                {doctors.map((doc) => {
+                  const ratingDetails = getDoctorRatingDetails(doc.id, doc.user.name);
+
+                  return (
+                    <tr key={doc.id} className="hover:bg-warm-50/70 transition-colors">
+                      <td className="p-4">
+                        <div
+                          onClick={() => setSelectedDoctorDetail(doc)}
+                          className="flex items-center space-x-3 cursor-pointer group"
+                        >
+                          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-500 text-white font-bold flex items-center justify-center shadow-sm overflow-hidden shrink-0 border border-slate-200 group-hover:scale-105 transition-transform">
+                            {doc.avatarUrl ? (
+                              <img
+                                src={doc.avatarUrl}
+                                alt={doc.user.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span>{doc.user.name.charAt(0)}</span>
+                            )}
                           </div>
-                          <div className="text-warm-500 text-[11px] font-mono">{doc.user.email}</div>
+                          <div>
+                            <div className="font-bold text-sm text-warm-900 font-serif group-hover:text-brand-600 transition-colors flex items-center gap-1">
+                              <span>Dr. {doc.user.name}</span>
+                              <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-brand-600" />
+                            </div>
+                            <div className="text-warm-500 text-[11px] font-mono">{doc.user.email}</div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <span className="bg-brand-50 text-brand-700 font-bold px-2.5 py-0.5 rounded-full border border-brand-200">
-                        {doc.specialization}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <span className="flex items-center space-x-1 text-warm-700">
-                        <Clock className="w-3.5 h-3.5 text-warm-400" />
-                        <span>{doc.slotDurationMinutes} mins</span>
-                      </span>
-                    </td>
-                    <td className="p-4 text-warm-600">
-                      {doc.user.phone ? (
-                        <span className="flex items-center space-x-1 font-mono text-[11px]">
-                          <Phone className="w-3 h-3 text-warm-400" />
-                          <span>{doc.user.phone}</span>
+                      </td>
+                      <td className="p-4">
+                        <span className="bg-brand-50 text-brand-700 font-bold px-2.5 py-0.5 rounded-full border border-brand-200">
+                          {doc.specialization}
                         </span>
-                      ) : (
-                        <span className="text-warm-400 italic">Not set</span>
-                      )}
-                    </td>
-                    <td className="p-4">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] uppercase ${
-                          doc.isActive
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-warm-100 text-warm-500 border border-warm-200"
-                        }`}
-                      >
-                        {doc.isActive ? "Active on Roster" : "Inactive"}
-                      </span>
-                    </td>
-                    <td className="p-4 font-bold text-warm-900">
-                      {doc._count?.doctorAppointments || 0} Appointments
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end space-x-2">
-                        <button
-                          onClick={() => handleToggleActive(doc.id, doc.isActive)}
-                          className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center space-x-1 font-bold text-amber-900">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                          <span>{ratingDetails.rating}</span>
+                          <span className="text-[10px] text-slate-400 font-normal">({ratingDetails.reviewsCount})</span>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <span className="flex items-center space-x-1 text-warm-700">
+                          <Clock className="w-3.5 h-3.5 text-warm-400" />
+                          <span>{doc.slotDurationMinutes} mins</span>
+                        </span>
+                      </td>
+                      <td className="p-4 text-warm-600">
+                        {doc.user.phone ? (
+                          <span className="flex items-center space-x-1 font-mono text-[11px]">
+                            <Phone className="w-3 h-3 text-warm-400" />
+                            <span>{doc.user.phone}</span>
+                          </span>
+                        ) : (
+                          <span className="text-warm-400 italic">Not set</span>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] uppercase ${
                             doc.isActive
-                              ? "bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-300"
-                              : "bg-emerald-50 text-emerald-900 hover:bg-emerald-100 border border-emerald-300"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-warm-100 text-warm-500 border border-warm-200"
                           }`}
                         >
-                          {doc.isActive ? "Deactivate" : "Activate"}
-                        </button>
+                          {doc.isActive ? "Active on Roster" : "Inactive"}
+                        </span>
+                      </td>
+                      <td className="p-4 font-bold text-warm-900">
+                        {doc._count?.doctorAppointments || 0} Appointments
+                      </td>
+                      <td className="p-4 text-right">
+                        <div className="flex items-center justify-end space-x-2">
+                          <button
+                            onClick={() => handleToggleActive(doc.id, doc.isActive)}
+                            className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                              doc.isActive
+                                ? "bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-300"
+                                : "bg-emerald-50 text-emerald-900 hover:bg-emerald-100 border border-emerald-300"
+                            }`}
+                          >
+                            {doc.isActive ? "Deactivate" : "Activate"}
+                          </button>
 
-                        <button
-                          onClick={() => setDoctorToOffboard(doc)}
-                          className="px-3 py-1 rounded-full text-xs font-bold text-rose-800 bg-rose-100 hover:bg-rose-200 border border-rose-300 transition-colors flex items-center space-x-1 shadow-xs"
-                          title="Offboard / Remove Doctor"
-                        >
-                          <Trash2 className="w-3.5 h-3.5 text-rose-700" />
-                          <span>Remove Doctor</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          <button
+                            onClick={() => setDoctorToOffboard(doc)}
+                            className="px-3 py-1 rounded-full text-xs font-bold text-rose-800 bg-rose-100 hover:bg-rose-200 border border-rose-300 transition-colors flex items-center space-x-1 shadow-xs"
+                            title="Offboard / Remove Doctor"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-rose-700" />
+                            <span>Remove Doctor</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

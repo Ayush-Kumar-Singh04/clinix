@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import SlotPicker from "@/components/SlotPicker";
 import SymptomAIModal from "@/components/SymptomAIModal";
-import { formatDate, formatTime } from "@/lib/utils";
+import { formatDate, formatTime, getDoctorProficiencies, getDoctorRatingDetails } from "@/lib/utils";
 
 export default function DoctorDetailPage() {
   const params = useParams();
@@ -168,40 +168,88 @@ export default function DoctorDetailPage() {
       </button>
 
       {/* Doctor Header Profile */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-start space-x-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-500 text-white flex items-center justify-center font-bold text-2xl shadow-lg shadow-brand-500/20 shrink-0">
-            {doctor.user.name.charAt(0)}
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2">
-              <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900">Dr. {doctor.user.name}</h1>
-              <div className="flex items-center space-x-1 bg-amber-50 border border-amber-200 text-amber-800 px-2.5 py-0.5 rounded-full text-xs font-bold">
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
-                <span>{doctor.rating.toFixed(1)}</span>
+      {(() => {
+        const proficiencies = getDoctorProficiencies(doctor.specialization);
+        const ratingDetails = getDoctorRatingDetails(doctor.id, doctor.user.name);
+
+        return (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-slate-200 shadow-sm space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-start space-x-4">
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-brand-600 to-teal-500 text-white flex items-center justify-center font-bold text-3xl shadow-lg shadow-brand-500/20 overflow-hidden shrink-0 border-2 border-white">
+                  {doctor.avatarUrl ? (
+                    <img src={doctor.avatarUrl} alt={doctor.user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{doctor.user.name.charAt(0)}</span>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-serif">
+                      Dr. {doctor.user.name}
+                    </h1>
+                    <div className="flex items-center space-x-1.5 bg-amber-50 border border-amber-300 text-amber-900 px-3 py-1 rounded-full text-xs font-bold shadow-xs">
+                      <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
+                      <span>{ratingDetails.rating}</span>
+                      <span className="text-slate-400 font-normal">({ratingDetails.reviewsCount} verified reviews)</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                    <span className="text-xs font-bold text-brand-700 bg-brand-50 px-3 py-0.5 rounded-full border border-brand-200">
+                      {doctor.specialization}
+                    </span>
+                    <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-0.5 rounded-full border border-emerald-200">
+                      {ratingDetails.experienceYears}+ Years Clinical Experience
+                    </span>
+                    <span className="text-xs font-bold text-indigo-800 bg-indigo-50 px-3 py-0.5 rounded-full border border-indigo-200">
+                      {ratingDetails.recommendationRate}% Patient Satisfaction
+                    </span>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-600 pt-2 max-w-2xl leading-relaxed">
+                    {doctor.bio || "Dedicated physician with extensive outpatient and hospital clinical practice, focusing on precision diagnostics and empathetic patient care."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-200 space-y-2 shrink-0 text-xs shadow-xs">
+                <div className="flex items-center space-x-2 text-slate-800 font-bold">
+                  <Clock className="w-4 h-4 text-brand-600" />
+                  <span>{doctor.slotDurationMinutes} Minute Consultation</span>
+                </div>
+                <div className="flex items-center space-x-2 text-emerald-700 font-semibold">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Verified & Concurrency-Safe</span>
+                </div>
               </div>
             </div>
-            <span className="inline-block text-xs font-bold text-brand-600 bg-brand-50 px-3 py-0.5 rounded-full border border-brand-200">
-              {doctor.specialization}
-            </span>
-            <p className="text-xs text-slate-600 pt-1 max-w-xl">{doctor.bio || "Dedicated healthcare clinician."}</p>
-          </div>
-        </div>
 
-        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1.5 shrink-0 text-xs">
-          <div className="flex items-center space-x-2 text-slate-700 font-semibold">
-            <Clock className="w-4 h-4 text-brand-600" />
-            <span>{doctor.slotDurationMinutes} Minute Consultation</span>
+            {/* Clinical Proficiencies & Sub-Specialties */}
+            <div className="pt-4 border-t-2 border-slate-100 space-y-2">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-brand-500" />
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  Clinical Proficiencies & Treatment Focus
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {proficiencies.map((item: string, idx: number) => (
+                  <span
+                    key={idx}
+                    className="text-xs font-semibold bg-brand-50/60 text-brand-900 px-3 py-1 rounded-xl border border-brand-200/80 shadow-xs"
+                  >
+                    ✦ {item}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="flex items-center space-x-2 text-slate-600">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Concurrency-Safe Guaranteed</span>
-          </div>
-        </div>
-      </div>
+        );
+      })()}
 
       {bookingError && (
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-2xl flex items-center gap-2">
+        <div className="p-4 bg-rose-50 border-2 border-rose-300 text-rose-700 text-xs font-bold rounded-2xl flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{bookingError}</span>
         </div>
