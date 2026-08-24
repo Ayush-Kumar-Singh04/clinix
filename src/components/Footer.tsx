@@ -1,51 +1,117 @@
+"use client";
+
 import Link from "next/link";
-import { Activity, ShieldCheck, HeartPulse } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
+import { ArrowRight } from "lucide-react";
 
 export default function Footer() {
+  const pathname = usePathname();
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => {
+        const u = data.data?.user || data.user;
+        if (data.success && u) {
+          setCurrentUser(u);
+        } else {
+          setCurrentUser(null);
+        }
+      })
+      .catch(() => setCurrentUser(null));
+  }, [pathname]);
+
+  // Get dashboard path based on role
+  const getDashboardPath = () => {
+    if (!currentUser) return "/register";
+    if (currentUser.role === "PATIENT") return "/patient";
+    if (currentUser.role === "DOCTOR") return "/doctor";
+    if (currentUser.role === "ADMIN") return "/admin";
+    return "/";
+  };
+
+  // Use full paths (with /) so anchor links work from any page
+  const isLanding = pathname === "/";
+  const isAuthPage = pathname === "/login" || pathname === "/register";
+  const featuresHref = isLanding ? "#features" : "/#features";
+  const howItWorksHref = isLanding ? "#how-it-works" : "/#how-it-works";
+  const reviewsHref = isLanding ? "#reviews" : "/#reviews";
+
   return (
-    <footer className="bg-slate-900 text-slate-400 text-sm border-t border-slate-800 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2 text-white">
-            <div className="w-8 h-8 rounded-lg bg-teal-500 flex items-center justify-center">
-              <Activity className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-lg tracking-tight">Clinix</span>
+    <footer>
+      {/* CTA Section with Background Image - Hidden on auth pages to avoid collision */}
+      {!isAuthPage && (
+        <section
+          className="relative bg-cover bg-center py-24 sm:py-32"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=1920&q=80')`,
+          }}
+        >
+          <div className="absolute inset-0 bg-warm-900/75" />
+          <div className="relative z-10 max-w-3xl mx-auto px-4 text-center space-y-6">
+            {currentUser ? (
+              <>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-white leading-tight">
+                  Welcome back, {currentUser.name.split(" ")[0]}!
+                </h2>
+                <p className="text-base text-warm-300 max-w-lg mx-auto">
+                  Continue managing your healthcare appointments and care plans.
+                </p>
+                <div className="pt-2">
+                  <Link href={getDashboardPath()} className="btn-amber !text-base">
+                    <span>Go to Dashboard</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-white leading-tight">
+                  Ready to take care of your health?
+                </h2>
+                <p className="text-base text-warm-300 max-w-lg mx-auto">
+                  Join thousands of patients using Clinix for smarter healthcare, one appointment at a time.
+                </p>
+                <div className="pt-2">
+                  <Link href="/register" className="btn-amber !text-base">
+                    <span>Get started free</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Healthcare appointment and follow-up management platform built for modern clinical excellence.
-          </p>
-          <div className="flex items-center space-x-2 text-xs text-emerald-400 font-medium">
-            <ShieldCheck className="w-4 h-4" />
-            <span>HIPAA-Compliant Workflow Ready</span>
-          </div>
-        </div>
+        </section>
+      )}
 
-        <div>
-          <h4 className="text-white font-semibold text-xs uppercase tracking-wider mb-3">Platform</h4>
-          <ul className="space-y-2 text-xs">
-            <li><Link href="/patient/doctors" className="hover:text-white transition-colors">Find Doctors</Link></li>
-            <li><Link href="/patient" className="hover:text-white transition-colors">Patient Portal</Link></li>
-            <li><Link href="/doctor" className="hover:text-white transition-colors">Doctor Portal</Link></li>
-            <li><Link href="/admin" className="hover:text-white transition-colors">Admin Portal</Link></li>
-          </ul>
-        </div>
+      {/* Cream Footer Bar */}
+      <div className="bg-cream border-t border-warm-200/60 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          {/* Brand */}
+          <Link href="/" className="font-serif text-xl text-warm-900 tracking-tight">
+            Clinix
+          </Link>
 
-        <div>
-          <h4 className="text-white font-semibold text-xs uppercase tracking-wider mb-3">Clinical Safety</h4>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            All clinical summaries are workflow assistance tools for healthcare professionals. Not a medical diagnosis.
-          </p>
-        </div>
+          {/* Nav Links */}
+          <nav className="flex flex-wrap items-center gap-6 text-sm text-warm-500 font-medium">
+            <Link href={featuresHref} className="hover:text-warm-900 transition-colors">Features</Link>
+            <Link href={howItWorksHref} className="hover:text-warm-900 transition-colors">How it works</Link>
+            <Link href={reviewsHref} className="hover:text-warm-900 transition-colors">Reviews</Link>
+            {currentUser ? (
+              <Link href={getDashboardPath()} className="hover:text-warm-900 transition-colors">Dashboard</Link>
+            ) : (
+              <>
+                <Link href="/login" className="hover:text-warm-900 transition-colors">Sign in</Link>
+                <Link href="/register" className="hover:text-warm-900 transition-colors">Get started</Link>
+              </>
+            )}
+          </nav>
 
-        <div>
-          <h4 className="text-white font-semibold text-xs uppercase tracking-wider mb-3">System Status</h4>
-          <div className="flex items-center space-x-2 text-xs text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>All API Systems Operational</span>
-          </div>
-          <p className="text-xs text-slate-500 mt-4">
-            © 2026 Clinix Healthcare Inc.
+          {/* Copyright */}
+          <p className="text-xs text-warm-400">
+            © 2026 Clinix
           </p>
         </div>
       </div>

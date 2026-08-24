@@ -62,7 +62,7 @@ export default function SearchDoctorsPage() {
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
           <input
             type="text"
-            placeholder="Search by doctor name or condition..."
+            placeholder="Search by doctor (e.g. Dr. Sharma) or specialization..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-brand-500 outline-none"

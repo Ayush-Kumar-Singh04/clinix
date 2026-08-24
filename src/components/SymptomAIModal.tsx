@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, AlertCircle, ShieldAlert, Loader2, CheckCircle2 } from "lucide-react";
+import { ClipboardList, AlertCircle, ShieldAlert, Loader2, CheckCircle2, Activity } from "lucide-react";
 
 interface SymptomAIModalProps {
   isOpen: boolean;
@@ -55,7 +55,7 @@ export default function SymptomAIModal({
             "Have you noticed any triggers?",
             "Are you currently taking any medications?",
           ],
-          disclaimer: "AI-generated workflow summary. Not a medical diagnosis.",
+          disclaimer: "Structured clinical intake summary. Clinician judgement governs all care decisions.",
         });
       }
     } catch (err) {
@@ -67,7 +67,7 @@ export default function SymptomAIModal({
           "Have you noticed any triggers?",
           "Are you currently taking any medications?",
         ],
-        disclaimer: "AI-generated workflow summary. Not a medical diagnosis.",
+        disclaimer: "Structured clinical intake summary. Clinician judgement governs all care decisions.",
       });
     } finally {
       setIsGeneratingAI(false);
@@ -80,7 +80,7 @@ export default function SymptomAIModal({
         <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
           <div>
             <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-brand-600" />
+              <ClipboardList className="w-5 h-5 text-brand-600" />
               Symptom Intake & Pre-Visit Review
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -121,25 +121,25 @@ export default function SymptomAIModal({
               {isGeneratingAI ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Analyzing Symptoms...</span>
+                  <span>Preparing Intake...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>Analyze Symptoms</span>
+                  <Activity className="w-4 h-4" />
+                  <span>Review Clinical Intake</span>
                 </>
               )}
             </button>
           )}
         </div>
 
-        {/* AI Output Card */}
+        {/* Output Card */}
         {aiSummary && (
           <div className="bg-brand-50/60 border border-brand-200 rounded-2xl p-4 space-y-3 mb-6 animate-fadeIn">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-brand-900 uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-brand-600" />
-                Pre-Visit Assessment
+                <ClipboardList className="w-4 h-4 text-brand-600" />
+                Pre-Visit Clinical Summary
               </span>
               <span
                 className={`text-xs px-2.5 py-0.5 rounded-full font-bold uppercase ${

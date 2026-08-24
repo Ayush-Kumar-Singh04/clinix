@@ -55,6 +55,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         },
       });
 
+      // Clean up any existing prescription for this appointment (prevents unique constraint error on re-submission)
+      await tx.prescription.deleteMany({
+        where: { appointmentId },
+      });
+
       // Create Prescription if items provided
       if (prescriptionItems.length > 0) {
         const prescription = await tx.prescription.create({

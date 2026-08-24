@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Clock, Sparkles, FileText, Pill, Bell, CalendarCheck } from "lucide-react";
+import { CheckCircle2, Clock, ClipboardList, FileText, Pill, Bell, CalendarCheck } from "lucide-react";
 
 interface AppointmentTimelineProps {
   status: "UPCOMING" | "COMPLETED" | "CANCELLED" | "RESCHEDULED";
@@ -36,9 +36,9 @@ export default function AppointmentTimeline({
     },
     {
       id: 3,
-      title: "Pre-Visit Summary",
+      title: "Pre-Visit Triage",
       desc: "Clinical workflow & urgency triage",
-      icon: Sparkles,
+      icon: ClipboardList,
       completed: hasAiSummary,
       active: hasAiSummary && status !== "COMPLETED",
     },
@@ -70,8 +70,8 @@ export default function AppointmentTimeline({
 
   return (
     <div className="py-4">
-      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Appointment Lifecycle Timeline</h4>
-      <div className="relative border-l-2 border-slate-200 ml-4 space-y-6">
+      <h4 className="text-xs font-bold text-warm-400 uppercase tracking-wider mb-4" style={{ fontFamily: "'Inter', sans-serif" }}>Appointment Lifecycle Timeline</h4>
+      <div className="relative border-l-2 border-warm-200 ml-4 space-y-6">
         {steps.map((step) => {
           const Icon = step.icon;
           const isDone = step.completed;
@@ -85,17 +85,17 @@ export default function AppointmentTimeline({
                   isDone
                     ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/20"
                     : isActive
-                    ? "bg-brand-600 text-white ring-4 ring-brand-100"
-                    : "bg-slate-100 text-slate-400 border border-slate-300"
+                    ? "bg-brand-500 text-white ring-4 ring-brand-100"
+                    : "bg-warm-100 text-warm-400 border border-warm-300"
                 }`}
               >
                 {isDone ? <CheckCircle2 className="w-5 h-5" /> : <Icon className="w-4 h-4" />}
               </div>
 
               {/* Step Content */}
-              <div className="bg-white p-3.5 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white p-3.5 rounded-xl border border-warm-200/60 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
-                  <h5 className={`text-sm font-semibold ${isDone ? "text-slate-800" : isActive ? "text-brand-700" : "text-slate-400"}`}>
+                  <h5 className={`text-sm font-semibold ${isDone ? "text-warm-800" : isActive ? "text-brand-700" : "text-warm-400"}`} style={{ fontFamily: "'Inter', sans-serif" }}>
                     {step.title}
                   </h5>
                   {isDone && (
@@ -104,7 +104,7 @@ export default function AppointmentTimeline({
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-slate-500 mt-1">{step.desc}</p>
+                <p className="text-xs text-warm-500 mt-1">{step.desc}</p>
               </div>
             </div>
           );

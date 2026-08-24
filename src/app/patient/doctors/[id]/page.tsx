@@ -8,7 +8,6 @@ import {
   Calendar as CalendarIcon,
   ShieldCheck,
   AlertCircle,
-  Sparkles,
   ArrowLeft,
   CheckCircle2,
 } from "lucide-react";

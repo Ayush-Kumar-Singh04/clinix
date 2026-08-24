@@ -6,7 +6,6 @@ import {
   Calendar,
   Clock,
   User,
-  Sparkles,
   AlertTriangle,
   FileText,
   CheckCircle2,
@@ -18,15 +17,21 @@ import { formatDate, formatTime } from "@/lib/utils";
 
 export default function DoctorDashboard() {
   const [appointments, setAppointments] = useState<any[]>([]);
+  const [upcomingLeaves, setUpcomingLeaves] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   useEffect(() => {
-    fetch("/api/appointments")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setAppointments(data.data.appointments);
+    Promise.all([
+      fetch("/api/appointments").then((res) => res.json()),
+      fetch("/api/doctor/leave").then((res) => res.json()),
+    ])
+      .then(([apptsData, leavesData]) => {
+        if (apptsData.success) {
+          setAppointments(apptsData.data.appointments);
+        }
+        if (leavesData.success) {
+          setUpcomingLeaves(leavesData.data.leaves || []);
         }
       })
       .finally(() => setIsLoading(false));
@@ -43,6 +48,8 @@ export default function DoctorDashboard() {
     (a) => a.status === "UPCOMING" && a.urgency === "HIGH"
   );
 
+  const activeLeavesUpcoming = upcomingLeaves.filter((l) => l.leaveDate >= todayStr);
+
   const filteredAppointments = appointments.filter((a) => {
     if (statusFilter === "TODAY") return a.date === todayStr;
     if (statusFilter === "UPCOMING") return a.status === "UPCOMING" || a.status === "RESCHEDULED";
@@ -53,42 +60,57 @@ export default function DoctorDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Doctor Header Banner */}
-      <div className="bg-gradient-to-r from-teal-900 via-teal-800 to-brand-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+      {/* Doctor Header Banner with Photo */}
+      <div
+        className="dashboard-hero p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=1400&q=80')`,
+        }}
+      >
         <div className="space-y-2">
-          <div className="inline-flex items-center space-x-2 bg-white/10 px-3 py-1 rounded-full text-xs font-semibold text-teal-300">
+          <div className="inline-flex items-center space-x-2 bg-white/10 px-3 py-1 rounded-full text-xs font-semibold text-brand-300">
             <Stethoscope className="w-3.5 h-3.5" />
             <span>Clinician Workflow Portal</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Today&apos;s Appointments & Triage</h1>
-          <p className="text-xs sm:text-sm text-teal-100">
-            Review patient symptoms, pre-visit chief complaints, and publish patient care plans.
+          <h1 className="text-2xl sm:text-3xl font-serif tracking-tight">Today&apos;s Appointments & Triage</h1>
+          <p className="text-xs sm:text-sm text-warm-300">
+            Review patient symptoms, pre-visit chief complaints, publish care plans, and manage scheduled leaves.
           </p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-3 text-center shrink-0">
-          <div className="bg-white/10 p-3 rounded-2xl border border-white/15">
-            <div className="text-xl font-black text-teal-300">{todayAppts.length}</div>
-            <div className="text-[10px] text-slate-300">Today</div>
-          </div>
-          <div className="bg-white/10 p-3 rounded-2xl border border-white/15">
-            <div className="text-xl font-black text-rose-300">{highPriorityAppts.length}</div>
-            <div className="text-[10px] text-slate-300">High Priority</div>
-          </div>
-          <div className="bg-white/10 p-3 rounded-2xl border border-white/15">
-            <div className="text-xl font-black text-emerald-300">{completedAppts.length}</div>
-            <div className="text-[10px] text-slate-300">Completed</div>
+        {/* Quick Actions & Stats Grid */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+          <Link
+            href="/doctor/leave"
+            className="px-4 py-2.5 bg-white/15 hover:bg-white/25 text-white font-bold text-xs rounded-2xl border border-white/20 transition-all flex items-center justify-center space-x-2 shadow-sm"
+          >
+            <Calendar className="w-4 h-4 text-brand-300" />
+            <span>Apply for Leave ({activeLeavesUpcoming.length} active)</span>
+          </Link>
+
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="bg-white/10 p-2.5 rounded-2xl border border-white/15">
+              <div className="text-lg font-black text-brand-300">{todayAppts.length}</div>
+              <div className="text-[10px] text-warm-300">Today</div>
+            </div>
+            <div className="bg-white/10 p-2.5 rounded-2xl border border-white/15">
+              <div className="text-lg font-black text-rose-300">{highPriorityAppts.length}</div>
+              <div className="text-[10px] text-warm-300">High Pri</div>
+            </div>
+            <div className="bg-white/10 p-2.5 rounded-2xl border border-white/15">
+              <div className="text-lg font-black text-emerald-300">{completedAppts.length}</div>
+              <div className="text-[10px] text-warm-300">Completed</div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* High Priority AI Alert Banner */}
+      {/* High Priority Alert Banner */}
       {highPriorityAppts.length > 0 && (
-        <div className="bg-rose-50 border border-rose-200 rounded-3xl p-4 sm:p-5 flex items-start space-x-3 text-rose-900 shadow-sm">
+        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 sm:p-5 flex items-start space-x-3 text-rose-900 shadow-sm">
           <AlertTriangle className="w-6 h-6 text-rose-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <h4 className="text-sm font-bold">Action Required: {highPriorityAppts.length} High-Priority Symptoms Triaged</h4>
+            <h4 className="text-sm font-bold" style={{ fontFamily: "'Inter', sans-serif" }}>Action Required: {highPriorityAppts.length} High-Priority Symptoms Triaged</h4>
             <p className="text-xs text-rose-700">
               The pre-visit screening identified high-urgency symptoms for upcoming consultations. Please review chief complaints before consultation.
             </p>
@@ -96,11 +118,11 @@ export default function DoctorDashboard() {
         </div>
       )}
 
-      {/* Main Appointments Table / Card View */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-teal-600" />
+      {/* Main Appointments Table */}
+      <div className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-warm-100 pb-4">
+          <h2 className="text-lg font-serif text-warm-900 flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-brand-600" />
             Patient Appointments Queue
           </h2>
 
@@ -109,10 +131,10 @@ export default function DoctorDashboard() {
               <button
                 key={f}
                 onClick={() => setStatusFilter(f)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all ${
+                className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all ${
                   statusFilter === f
-                    ? "bg-teal-600 text-white shadow-sm"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    ? "bg-warm-700 text-white shadow-sm"
+                    : "bg-warm-100 text-warm-600 hover:bg-warm-200"
                 }`}
               >
                 {f.replace("_", " ")}
@@ -122,15 +144,15 @@ export default function DoctorDashboard() {
         </div>
 
         {isLoading ? (
-          <div className="py-12 text-center text-slate-400 animate-pulse">Loading appointments schedule...</div>
+          <div className="py-12 text-center text-warm-400 animate-pulse">Loading appointments schedule...</div>
         ) : filteredAppointments.length === 0 ? (
-          <div className="p-8 text-center text-slate-400 text-xs">No appointments match selected filter.</div>
+          <div className="p-8 text-center text-warm-400 text-xs">No appointments match selected filter.</div>
         ) : (
           <div className="space-y-4">
             {filteredAppointments.map((appt) => (
               <div
                 key={appt.id}
-                className="p-5 rounded-2xl border border-slate-200 hover:border-teal-300 hover:shadow-md transition-all bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                className="p-5 rounded-2xl border border-warm-200/60 hover:border-brand-300 hover:shadow-md transition-all bg-cream/50 flex flex-col md:flex-row md:items-center justify-between gap-4"
               >
                 <div className="space-y-2">
                   <div className="flex items-center space-x-3">
@@ -151,29 +173,29 @@ export default function DoctorDashboard() {
                     </span>
 
                     {appt.date === todayStr && (
-                      <span className="text-[10px] bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-md">
+                      <span className="text-[10px] bg-brand-100 text-brand-700 font-bold px-2 py-0.5 rounded-md">
                         TODAY
                       </span>
                     )}
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-base text-slate-900">Patient: {appt.patient.name}</h3>
-                    <div className="flex items-center space-x-4 text-xs text-slate-500 font-medium mt-0.5">
+                    <h3 className="font-bold text-base text-warm-900" style={{ fontFamily: "'Inter', sans-serif" }}>Patient: {appt.patient.name}</h3>
+                    <div className="flex items-center space-x-4 text-xs text-warm-500 font-medium mt-0.5">
                       <span>{formatDate(appt.date)} at {formatTime(appt.startTime)}</span>
                       <span>•</span>
                       <span>Phone: {appt.patient.phone || "N/A"}</span>
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-700 font-medium line-clamp-1">
-                    <strong className="text-slate-900">Chief Complaint:</strong> {appt.chiefComplaint || appt.symptoms}
+                  <p className="text-xs text-warm-700 font-medium line-clamp-1">
+                    <strong className="text-warm-900">Chief Complaint:</strong> {appt.chiefComplaint || appt.symptoms}
                   </p>
                 </div>
 
                 <Link
                   href={`/doctor/appointments/${appt.id}`}
-                  className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 transition-all flex items-center justify-center space-x-2 shrink-0"
+                  className="btn-amber !text-xs !py-2.5 !px-5 shrink-0"
                 >
                   <span>{appt.status === "COMPLETED" ? "View Visit Record" : "Start Consultation"}</span>
                   <ArrowRight className="w-4 h-4" />

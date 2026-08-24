@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  Sparkles,
+  ClipboardList,
   ShieldAlert,
   User,
   Clock,
@@ -16,6 +16,9 @@ import {
   AlertTriangle,
   ArrowLeft,
   Loader2,
+  Mail,
+  Send,
+  X,
 } from "lucide-react";
 import { formatDate, formatTime } from "@/lib/utils";
 
@@ -39,6 +42,13 @@ export default function DoctorConsultationPage() {
   const [prescriptionItems, setPrescriptionItems] = useState<PrescriptionItemInput[]>([]);
   const [isCompleting, setIsCompleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Direct Email Modal State
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailMessage, setEmailMessage] = useState("");
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailSuccessMsg, setEmailSuccessMsg] = useState("");
 
   useEffect(() => {
     fetch(`/api/appointments/${appointmentId}`)
@@ -117,6 +127,44 @@ export default function DoctorConsultationPage() {
     }
   };
 
+  const handleSendDirectEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailMessage.trim()) return;
+    setIsSendingEmail(true);
+    setEmailSuccessMsg("");
+
+    try {
+      const res = await fetch("/api/notifications/send-direct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          appointmentId: appointment.id,
+          recipientType: "PATIENT",
+          recipientEmail: appointment.patient.email,
+          recipientName: appointment.patient.name,
+          subject: emailSubject || `Clinical Update from Dr. ${appointment.doctor.user.name}`,
+          message: emailMessage,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setEmailSuccessMsg("Email successfully sent to patient!");
+        setEmailMessage("");
+        setTimeout(() => {
+          setIsEmailModalOpen(false);
+          setEmailSuccessMsg("");
+        }, 2000);
+      } else {
+        alert(data.error?.message || "Failed to send email");
+      }
+    } catch (err) {
+      alert("An error occurred while sending email.");
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
   if (isLoading) {
     return <div className="py-16 text-center text-slate-400">Loading consultation record...</div>;
   }
@@ -125,7 +173,28 @@ export default function DoctorConsultationPage() {
     return <div className="py-16 text-center text-slate-500">Appointment record not found.</div>;
   }
 
-  const aiPre = appointment.aiPreVisitSummary;
+  const parseJsonSafely = (data: any) => {
+    if (!data) return null;
+    if (typeof data === "object") return data;
+    if (typeof data === "string") {
+      try {
+        return JSON.parse(data);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const aiPre = parseJsonSafely(appointment.aiPreVisitSummary);
+  const chiefComplaint = aiPre?.chiefComplaint || appointment.chiefComplaint || appointment.symptoms || "Clinical evaluation requested";
+  const suggestedQuestions = (aiPre?.suggestedQuestions && Array.isArray(aiPre.suggestedQuestions) && aiPre.suggestedQuestions.length > 0)
+    ? aiPre.suggestedQuestions
+    : [
+        "When did these symptoms first begin and have they changed over time?",
+        "Are you experiencing any associated triggers or relieving factors?",
+        "Are you currently taking any regular or over-the-counter medications?",
+      ];
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
@@ -159,10 +228,90 @@ export default function DoctorConsultationPage() {
           </p>
         </div>
 
-        <span className={appointment.status === "COMPLETED" ? "badge-completed" : "badge-upcoming"}>
-          {appointment.status}
-        </span>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setIsEmailModalOpen(true)}
+            className="px-4 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-800 font-semibold text-xs rounded-full border border-brand-200 transition-all flex items-center space-x-2 shadow-2xs"
+          >
+            <Mail className="w-3.5 h-3.5 text-brand-600" />
+            <span>Email Patient</span>
+          </button>
+          <span className={appointment.status === "COMPLETED" ? "badge-completed" : "badge-upcoming"}>
+            {appointment.status}
+          </span>
+        </div>
       </div>
+
+      {/* Direct Email Patient Modal */}
+      {isEmailModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center space-x-2">
+                <Mail className="w-5 h-5 text-brand-600" />
+                <h3 className="text-lg font-bold text-slate-900">Email Patient Directly</h3>
+              </div>
+              <button onClick={() => setIsEmailModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500">
+              Sending direct message to <strong className="text-slate-800">{appointment.patient.name}</strong> ({appointment.patient.email})
+            </p>
+
+            {emailSuccessMsg ? (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-2xl flex items-center space-x-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>{emailSuccessMsg}</span>
+              </div>
+            ) : (
+              <form onSubmit={handleSendDirectEmail} className="space-y-4">
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Email Subject</label>
+                  <input
+                    type="text"
+                    value={emailSubject}
+                    onChange={(e) => setEmailSubject(e.target.value)}
+                    placeholder={`Clinical Follow-up from Dr. ${appointment.doctor.user.name}`}
+                    className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Message Content *</label>
+                  <textarea
+                    rows={4}
+                    required
+                    value={emailMessage}
+                    onChange={(e) => setEmailMessage(e.target.value)}
+                    placeholder="Enter your clinical instructions, test follow-up note, or care guidance for the patient..."
+                    className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end space-x-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsEmailModalOpen(false)}
+                    className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSendingEmail || !emailMessage.trim()}
+                    className="btn-amber !text-xs !py-2.5 shadow-md flex items-center space-x-1.5"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>{isSendingEmail ? "Sending..." : "Send Email"}</span>
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
       {errorMsg && (
         <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-2xl">
@@ -171,54 +320,47 @@ export default function DoctorConsultationPage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: AI Pre-Visit Triage Card */}
+        {/* Left Column: Pre-Visit Clinical Intake Card */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-gradient-to-br from-brand-50 via-white to-teal-50 p-6 rounded-3xl border border-brand-200/80 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-brand-900 uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-brand-600" />
-                Pre-Visit Workflow Summary
-              </span>
-              <span className="text-[10px] bg-brand-100 text-brand-700 font-bold px-2 py-0.5 rounded-full">
-                Assistant Active
+                <ClipboardList className="w-4 h-4 text-brand-700" />
+                Pre-Visit Clinical Intake
               </span>
             </div>
 
             <div className="space-y-1">
-              <span className="text-xs font-bold text-slate-500">Patient Original Symptoms:</span>
+              <span className="text-xs font-bold text-slate-500">Patient Reported Symptoms:</span>
               <p className="text-xs text-slate-800 p-3 bg-white/80 rounded-xl border border-slate-200">
                 {appointment.symptoms}
               </p>
             </div>
 
-            {aiPre && (
-              <>
-                <div className="space-y-1">
-                  <span className="text-xs font-bold text-slate-500">Extracted Chief Complaint:</span>
-                  <p className="text-xs font-semibold text-brand-900 p-3 bg-brand-100/50 rounded-xl border border-brand-200">
-                    {aiPre.chiefComplaint}
-                  </p>
-                </div>
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-slate-500">Chief Complaint:</span>
+              <p className="text-xs font-semibold text-brand-900 p-3 bg-brand-100/50 rounded-xl border border-brand-200">
+                {chiefComplaint}
+              </p>
+            </div>
 
-                <div className="space-y-1.5">
-                  <span className="text-xs font-bold text-slate-500">3 Suggested Clinical Questions:</span>
-                  <ul className="space-y-1 text-xs text-slate-700">
-                    {aiPre.suggestedQuestions?.map((q: string, idx: number) => (
-                      <li key={idx} className="p-2.5 bg-white/80 rounded-xl border border-slate-100 flex items-start space-x-2">
-                        <span className="font-bold text-brand-600">{idx + 1}.</span>
-                        <span>{q}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </>
-            )}
+            <div className="space-y-1.5">
+              <span className="text-xs font-bold text-slate-500">Suggested Clinical Questions:</span>
+              <ul className="space-y-1.5 text-xs text-slate-700">
+                {suggestedQuestions.map((q: string, idx: number) => (
+                  <li key={idx} className="p-2.5 bg-white/80 rounded-xl border border-slate-100 flex items-start space-x-2">
+                    <span className="font-bold text-brand-600">{idx + 1}.</span>
+                    <span>{q}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-            {/* MANDATORY AI CLINICAL DISCLAIMER */}
+            {/* Clinical Disclaimer */}
             <div className="bg-amber-50 p-3 rounded-2xl border border-amber-200 flex items-start space-x-2 text-[11px] text-amber-900">
               <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
               <span>
-                <strong>Disclaimer:</strong> System-generated workflow clinical assistance. Not a medical diagnosis. Clinician judgement governs all care decisions.
+                <strong>Clinical Note:</strong> Pre-visit triage assistance. Clinician judgement governs all medical decisions.
               </span>
             </div>
           </div>

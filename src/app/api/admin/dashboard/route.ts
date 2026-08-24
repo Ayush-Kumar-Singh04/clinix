@@ -51,6 +51,15 @@ export async function GET(req: NextRequest) {
 
   const trends = Array.from(trendMap.values()).slice(-7); // Last 7 active dates
 
+  const recentBookings = await prisma.appointment.findMany({
+    include: {
+      patient: true,
+      doctor: { include: { user: true } },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 10,
+  });
+
   return createSuccessResponse({
     stats: {
       totalPatients,
@@ -67,5 +76,6 @@ export async function GET(req: NextRequest) {
     ],
     specDistribution,
     trends,
+    recentBookings,
   });
 }
