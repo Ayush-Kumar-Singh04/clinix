@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Lock, Mail, ArrowRight, UserCheck, Eye, EyeOff, KeyRound, ShieldCheck } from "lucide-react";
+import { Lock, Mail, ArrowRight, UserCheck, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -54,30 +54,33 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col lg:flex-row bg-[#FDFBF7]">
-      {/* Left: Deep Editorial Healthcare Visual Panel */}
+      {/* Left: Authentic Healthcare Clinical Atmosphere Panel */}
       <div
         className="hidden lg:flex lg:w-5/12 bg-cover bg-center relative flex-col justify-between p-12 overflow-hidden"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1200&q=80')`,
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1C1008]/95 via-[#1C1008]/80 to-[#1C1008]/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1A110A]/95 via-[#1A110A]/75 to-[#1A110A]/35" />
 
+        {/* Top Category */}
         <div className="relative z-10">
-          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15 text-xs font-semibold text-[#FAF6F1]">
-            <KeyRound className="w-3.5 h-3.5 text-amber-300" />
-            <span>Secure Portal Sign In</span>
-          </div>
+          <span className="text-xs font-semibold uppercase tracking-widest text-[#FAF6F1]/80">
+            Clinix Healthcare
+          </span>
         </div>
 
         {/* Bottom Editorial Quote Box */}
-        <div className="relative z-10 bg-[#2C1810]/85 backdrop-blur-md p-6 rounded-3xl border border-white/20 space-y-2.5 max-w-md shadow-2xl">
-          <h2 className="text-2xl lg:text-3xl font-serif text-white leading-snug">
-            Welcome back to Clinix Healthcare.
-          </h2>
-          <p className="text-[#FAF6F1]/90 text-xs leading-relaxed font-light">
-            Sign in to access your doctor appointments, clinical histories, prescription regimens, and administrative workflows.
-          </p>
+        <div className="relative z-10 space-y-4">
+          <div className="bg-[#241710]/90 backdrop-blur-md p-7 rounded-3xl border border-white/15 space-y-4 shadow-2xl">
+            <blockquote className="text-xl lg:text-2xl font-serif text-white leading-relaxed italic">
+              &ldquo;Great medicine begins with careful listening and continuous clinical attention.&rdquo;
+            </blockquote>
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-[#FAF6F1]/80">
+              <span className="font-semibold text-white">Clinix Clinical Advisory Board</span>
+              <span className="text-[#FAF6F1]/60">Department of Family Medicine</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -87,9 +90,9 @@ export default function LoginPage() {
           
           {/* Header */}
           <div className="space-y-1.5">
-            <h2 className="text-2xl sm:text-3xl font-serif text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-serif text-slate-900 tracking-tight">
               Sign In to Your Account
-            </h2>
+            </h1>
             <p className="text-xs sm:text-sm text-slate-500">
               New to Clinix?{" "}
               <Link href="/register" className="font-bold text-brand-600 hover:text-brand-700 underline underline-offset-2">
@@ -106,7 +109,7 @@ export default function LoginPage() {
                 <span>1-Click Demo Login:</span>
               </span>
               {activeRolePreset && (
-                <span className="text-[10px] bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full border border-brand-200">
+                <span className="text-[10px] bg-slate-200 text-slate-800 px-2 py-0.5 rounded-md font-semibold">
                   {activeRolePreset} Selected
                 </span>
               )}

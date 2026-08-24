@@ -12,11 +12,9 @@ import {
   Eye,
   EyeOff,
   ShieldCheck,
-  Sparkles,
-  HeartPulse,
-  CalendarCheck,
-  CheckCircle2,
-  Stethoscope,
+  Calendar,
+  FileText,
+  Clock,
 } from "lucide-react";
 
 export default function RegisterPage() {
@@ -28,23 +26,6 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  // Password strength calculation
-  const getPasswordStrength = (pass: string) => {
-    if (!pass) return { score: 0, label: "", color: "bg-slate-200" };
-    let score = 0;
-    if (pass.length >= 6) score++;
-    if (pass.length >= 10) score++;
-    if (/[A-Z]/.test(pass)) score++;
-    if (/[0-9]/.test(pass)) score++;
-    if (/[^A-Za-z0-9]/.test(pass)) score++;
-
-    if (score <= 2) return { score: 33, label: "Basic", color: "bg-amber-400" };
-    if (score <= 4) return { score: 66, label: "Good", color: "bg-brand-500" };
-    return { score: 100, label: "Strong & Secure", color: "bg-emerald-500" };
-  };
-
-  const strength = getPasswordStrength(password);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,68 +56,50 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col lg:flex-row bg-[#FDFBF7]">
-      {/* LEFT: Distinct Patient Onboarding & Value Proposition Showcase */}
-      <div className="lg:w-5/12 bg-gradient-to-br from-teal-950 via-slate-900 to-brand-950 p-8 sm:p-12 text-white flex flex-col justify-between relative overflow-hidden">
-        {/* Subtle decorative background glow */}
-        <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-teal-500/15 blur-3xl pointer-events-none" />
-        <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-brand-500/15 blur-3xl pointer-events-none" />
+      {/* LEFT: Authentic Real-Life Healthcare Editorial Visual Panel */}
+      <div
+        className="hidden lg:flex lg:w-5/12 bg-cover bg-center relative flex-col justify-between p-12 overflow-hidden"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=1200&q=80')`,
+        }}
+      >
+        {/* Soft, warm contrast scrim */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1C140E]/95 via-[#1C140E]/70 to-[#1C140E]/30" />
 
-        <div className="relative z-10 space-y-6">
-          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15 text-xs font-semibold text-teal-200">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>Join Clinix Care Network</span>
-          </div>
-
-          <div className="space-y-3">
-            <h1 className="text-3xl sm:text-4xl font-serif text-white tracking-tight leading-tight">
-              Start your journey to calm, continuous healthcare.
-            </h1>
-            <p className="text-slate-300 text-xs sm:text-sm font-light leading-relaxed">
-              Create your patient account in under 60 seconds to consult verified clinicians and manage care plans.
-            </p>
-          </div>
-
-          {/* Value Perks List */}
-          <div className="space-y-3.5 pt-4">
-            <div className="flex items-start space-x-3 bg-white/5 border border-white/10 p-3.5 rounded-2xl backdrop-blur-xs">
-              <div className="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center shrink-0 border border-teal-500/30">
-                <CalendarCheck className="w-4 h-4" />
-              </div>
-              <div className="text-xs">
-                <div className="font-bold text-white">Instant Collision-Free Booking</div>
-                <div className="text-slate-300 text-[11px]">Real-time hold locking prevents double-booking across doctors.</div>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3 bg-white/5 border border-white/10 p-3.5 rounded-2xl backdrop-blur-xs">
-              <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0 border border-amber-500/30">
-                <HeartPulse className="w-4 h-4" />
-              </div>
-              <div className="text-xs">
-                <div className="font-bold text-white">AI Clinical Intake Summaries</div>
-                <div className="text-slate-300 text-[11px]">Describe symptoms beforehand so your physician is prepared.</div>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3 bg-white/5 border border-white/10 p-3.5 rounded-2xl backdrop-blur-xs">
-              <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0 border border-indigo-500/30">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <div className="text-xs">
-                <div className="font-bold text-white">Automated Prescription Tracking</div>
-                <div className="text-slate-300 text-[11px]">Get timely reminders for post-consultation medications.</div>
-              </div>
-            </div>
-          </div>
+        {/* Top Branding / Category */}
+        <div className="relative z-10">
+          <span className="text-xs font-semibold uppercase tracking-widest text-[#FAF6F1]/80">
+            Patient Care Network
+          </span>
         </div>
 
-        {/* Bottom Trust Badge */}
-        <div className="relative z-10 pt-8 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-teal-400" />
-            <span>256-bit Encrypted Medical Records</span>
-          </span>
-          <span className="font-mono text-teal-300/80">Clinix Health v2.4</span>
+        {/* Bottom Editorial Content & Quote Box */}
+        <div className="relative z-10 space-y-6">
+          <div className="bg-[#241710]/90 backdrop-blur-md p-7 rounded-3xl border border-white/15 space-y-4 shadow-2xl">
+            <blockquote className="text-xl lg:text-2xl font-serif text-white leading-relaxed italic">
+              &ldquo;The care you receive should feel human, coordinated, and unhurried at every appointment.&rdquo;
+            </blockquote>
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-[#FAF6F1]/80">
+              <span className="font-semibold text-white">Dr. Eleanor Vance</span>
+              <span className="text-[#FAF6F1]/60">Chief of Outpatient Medicine</span>
+            </div>
+          </div>
+
+          {/* Core Patient Services */}
+          <div className="grid grid-cols-3 gap-3 text-white text-xs pt-1">
+            <div className="bg-white/10 backdrop-blur-xs p-3 rounded-2xl border border-white/10 flex items-center space-x-2">
+              <Calendar className="w-4 h-4 text-amber-300 shrink-0" />
+              <span className="font-medium text-[11px]">Direct Specialist Booking</span>
+            </div>
+            <div className="bg-white/10 backdrop-blur-xs p-3 rounded-2xl border border-white/10 flex items-center space-x-2">
+              <Clock className="w-4 h-4 text-teal-300 shrink-0" />
+              <span className="font-medium text-[11px]">Guaranteed Slot Locking</span>
+            </div>
+            <div className="bg-white/10 backdrop-blur-xs p-3 rounded-2xl border border-white/10 flex items-center space-x-2">
+              <FileText className="w-4 h-4 text-sky-300 shrink-0" />
+              <span className="font-medium text-[11px]">Digital Care Summaries</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -145,9 +108,9 @@ export default function RegisterPage() {
         <div className="w-full max-w-lg space-y-6 animate-in fade-in slide-in-from-right-4 duration-400">
           {/* Header */}
           <div className="space-y-1.5">
-            <h2 className="text-2xl sm:text-3xl font-serif text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-serif text-slate-900 tracking-tight">
               Create Patient Account
-            </h2>
+            </h1>
             <p className="text-xs sm:text-sm text-slate-500">
               Already have an account?{" "}
               <Link href="/login" className="font-bold text-brand-600 hover:text-brand-700 underline underline-offset-2">
@@ -184,7 +147,7 @@ export default function RegisterPage() {
 
               <div className="space-y-1">
                 <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                  Mobile Number (Optional)
+                  Phone Number (Optional)
                 </label>
                 <div className="relative">
                   <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
@@ -219,16 +182,9 @@ export default function RegisterPage() {
 
             {/* Password */}
             <div className="space-y-1">
-              <div className="flex items-center justify-between">
-                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                  Password *
-                </label>
-                {password && (
-                  <span className="text-[10px] font-bold text-slate-500">
-                    Strength: <span className="text-slate-800">{strength.label}</span>
-                  </span>
-                )}
-              </div>
+              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                Password *
+              </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
@@ -247,21 +203,11 @@ export default function RegisterPage() {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-
-              {/* Password Strength Indicator Bar */}
-              {password && (
-                <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1.5">
-                  <div
-                    className={`h-full ${strength.color} transition-all duration-300`}
-                    style={{ width: `${strength.score}%` }}
-                  />
-                </div>
-              )}
             </div>
 
-            {/* Terms checkbox disclaimer */}
+            {/* Terms disclaimer */}
             <p className="text-[11px] text-slate-500 pt-1 leading-relaxed">
-              By creating an account, you agree to Clinix&apos;s healthcare service terms and clinical confidentiality standards.
+              By creating an account, you agree to Clinix&apos;s healthcare terms and verified outpatient privacy standards.
             </p>
 
             <button
@@ -270,7 +216,7 @@ export default function RegisterPage() {
               className="w-full py-3.5 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2 group disabled:opacity-50"
             >
               {isLoading ? (
-                <span>Setting up your account...</span>
+                <span>Creating your account...</span>
               ) : (
                 <>
                   <span>Create Patient Account</span>
