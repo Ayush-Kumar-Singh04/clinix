@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import {
   Stethoscope,
   Plus,
-  Star,
   Check,
   X,
   AlertCircle,
@@ -21,7 +20,10 @@ import {
   Upload,
   User,
   ChevronUp,
-  Sparkles,
+  Trash2,
+  AlertTriangle,
+  UserMinus,
+  Mail,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -37,8 +39,9 @@ export default function AdminDoctorManagementPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
-  // Form State
+  // Create Form State
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("ClinixDoctor2026!");
@@ -60,6 +63,12 @@ export default function AdminDoctorManagementPage() {
     avatarUrl?: string;
   } | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Offboard / Remove Doctor Modal State
+  const [doctorToOffboard, setDoctorToOffboard] = useState<any | null>(null);
+  const [offboardReason, setOffboardReason] = useState("Contract Termination / Separation");
+  const [offboardNote, setOffboardNote] = useState("");
+  const [isOffboarding, setIsOffboarding] = useState(false);
 
   const fetchDoctors = async () => {
     setIsLoading(true);
@@ -176,6 +185,41 @@ export default function AdminDoctorManagementPage() {
     }
   };
 
+  const handleConfirmOffboarding = async () => {
+    if (!doctorToOffboard) return;
+    setIsOffboarding(true);
+    setErrorMsg("");
+
+    try {
+      const isRetirement = offboardReason.toLowerCase().includes("retire");
+      const res = await fetch(`/api/admin/doctors/${doctorToOffboard.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reason: offboardReason,
+          customNote: offboardNote,
+          actionType: isRetirement ? "RETIREMENT" : "TERMINATION",
+        }),
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        setErrorMsg(data.error?.message || "Failed to offboard doctor.");
+        setIsOffboarding(false);
+        return;
+      }
+
+      setSuccessMsg(`Dr. ${doctorToOffboard.user.name} was offboarded and notice emailed to ${doctorToOffboard.user.email}.`);
+      setDoctorToOffboard(null);
+      setOffboardNote("");
+      fetchDoctors();
+    } catch (err) {
+      setErrorMsg("Failed to offboard doctor due to network error.");
+    } finally {
+      setIsOffboarding(false);
+    }
+  };
+
   const copyCredentialsToClipboard = () => {
     if (!createdDoctorCreds) return;
     const text = `🏥 Clinix Healthcare — Physician Account Access
@@ -194,19 +238,17 @@ Please sign in to configure your consultation schedule.`;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      {/* Header Bar */}
+      {/* Clean Header Bar (No Unnecessary Text) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2">
-            <Link
-              href="/admin"
-              className="text-xs font-bold text-warm-500 hover:text-brand-600 flex items-center space-x-1"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Admin Dashboard</span>
-            </Link>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-serif text-warm-900 tracking-tight mt-1">
+          <Link
+            href="/admin"
+            className="text-xs font-bold text-warm-500 hover:text-brand-600 flex items-center space-x-1 mb-1"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Admin Dashboard</span>
+          </Link>
+          <h1 className="text-2xl sm:text-3xl font-serif text-warm-900 tracking-tight">
             Doctor Staff Directory
           </h1>
         </div>
@@ -236,7 +278,23 @@ Please sign in to configure your consultation schedule.`;
         </button>
       </div>
 
-      {/* Success Credentials Banner (In-Section) */}
+      {/* Success Notification Banner */}
+      {successMsg && (
+        <div className="p-4 bg-emerald-50 border-2 border-emerald-300 text-emerald-800 text-xs font-bold rounded-2xl flex items-center justify-between shadow-sm animate-fadeIn">
+          <div className="flex items-center space-x-2">
+            <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{successMsg}</span>
+          </div>
+          <button
+            onClick={() => setSuccessMsg("")}
+            className="text-emerald-700 hover:text-emerald-900 font-bold"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {/* Created Doctor Credentials Card */}
       {createdDoctorCreds && (
         <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-emerald-300 ring-4 ring-emerald-500/10 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex items-center justify-between border-b-2 border-emerald-100 pb-3">
@@ -321,7 +379,7 @@ Please sign in to configure your consultation schedule.`;
         </div>
       )}
 
-      {/* Appoint New Doctor In-Section Expandable Form */}
+      {/* Appoint New Doctor Expandable In-Section Form */}
       {isFormOpen && (
         <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-slate-300 ring-4 ring-black/5 space-y-5 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
@@ -362,7 +420,6 @@ Please sign in to configure your consultation schedule.`;
               </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                {/* Photo Preview Thumbnail */}
                 <div className="w-16 h-16 rounded-2xl bg-slate-200 border-2 border-slate-300 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
                   {avatarPreview ? (
                     <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
@@ -371,7 +428,6 @@ Please sign in to configure your consultation schedule.`;
                   )}
                 </div>
 
-                {/* Upload Button & URL input */}
                 <div className="flex-1 space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <label className="cursor-pointer inline-flex items-center space-x-1.5 px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-800 border-2 border-slate-300 rounded-xl text-xs font-bold shadow-xs transition-colors">
@@ -577,6 +633,109 @@ Please sign in to configure your consultation schedule.`;
         </div>
       )}
 
+      {/* Remove / Offboard Doctor Confirmation Modal */}
+      {doctorToOffboard && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border-2 border-rose-300 ring-4 ring-rose-500/10 space-y-5">
+            <div className="flex items-center justify-between border-b-2 border-rose-100 pb-3">
+              <div className="flex items-center space-x-3 text-rose-700">
+                <div className="w-10 h-10 rounded-2xl bg-rose-100 flex items-center justify-center border border-rose-200">
+                  <UserMinus className="w-5 h-5 text-rose-600" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 font-serif">
+                    Offboard & Remove Doctor
+                  </h3>
+                  <p className="text-xs text-slate-500 font-sans">
+                    Removes doctor from directory and emails departure notice.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setDoctorToOffboard(null)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 font-bold text-sm flex items-center justify-center transition-colors"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="bg-rose-50/70 border-2 border-rose-200 rounded-2xl p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-900 text-sm">Dr. {doctorToOffboard.user.name}</span>
+                <span className="bg-white text-rose-700 font-bold text-xs px-2.5 py-0.5 rounded-full border border-rose-200">
+                  {doctorToOffboard.specialization}
+                </span>
+              </div>
+              <div className="text-slate-600 text-xs font-mono">{doctorToOffboard.user.email}</div>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                  Departure / Offboarding Reason *
+                </label>
+                <select
+                  value={offboardReason}
+                  onChange={(e) => setOffboardReason(e.target.value)}
+                  className="w-full p-3 border-2 border-slate-300 bg-slate-50 font-bold text-slate-900 rounded-xl outline-none focus:border-slate-900"
+                >
+                  <option>Contract Termination / Separation</option>
+                  <option>Retirement & Honorary Departure</option>
+                  <option>Physician Resignation / Relocation</option>
+                  <option>End of Clinical Tenure</option>
+                  <option>Administrative Roster Restructuring</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                  Administrative Note (Included in notice email)
+                </label>
+                <textarea
+                  rows={3}
+                  value={offboardNote}
+                  onChange={(e) => setOffboardNote(e.target.value)}
+                  placeholder="e.g. Effective immediately. Handover completed. Thank you for your dedicated service..."
+                  className="w-full p-3 border-2 border-slate-300 bg-slate-50 font-medium text-slate-900 rounded-xl outline-none focus:border-slate-900"
+                />
+              </div>
+
+              <div className="p-3 bg-amber-50 border border-amber-200 text-amber-900 text-[11px] rounded-xl flex items-start space-x-2">
+                <Mail className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                <span>
+                  An official notice explaining the selected reason will be delivered immediately to <strong>{doctorToOffboard.user.email}</strong>.
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end space-x-3 pt-2 border-t-2 border-slate-100">
+              <button
+                type="button"
+                onClick={() => setDoctorToOffboard(null)}
+                className="px-5 py-2.5 font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors text-xs"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmOffboarding}
+                disabled={isOffboarding}
+                className="px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center space-x-2 text-xs disabled:opacity-50"
+              >
+                {isOffboarding ? (
+                  <span>Offboarding & Sending Notice...</span>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Confirm Offboard & Send Notice</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Doctors Table */}
       {isLoading ? (
         <div className="py-16 text-center text-warm-400 animate-pulse text-sm">
@@ -657,16 +816,27 @@ Please sign in to configure your consultation schedule.`;
                       {doc._count?.doctorAppointments || 0} Appointments
                     </td>
                     <td className="p-4 text-right">
-                      <button
-                        onClick={() => handleToggleActive(doc.id, doc.isActive)}
-                        className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
-                          doc.isActive
-                            ? "bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200"
-                            : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
-                        }`}
-                      >
-                        {doc.isActive ? "Deactivate" : "Activate"}
-                      </button>
+                      <div className="flex items-center justify-end space-x-2">
+                        <button
+                          onClick={() => handleToggleActive(doc.id, doc.isActive)}
+                          className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                            doc.isActive
+                              ? "bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200"
+                              : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
+                          }`}
+                        >
+                          {doc.isActive ? "Deactivate" : "Activate"}
+                        </button>
+
+                        <button
+                          onClick={() => setDoctorToOffboard(doc)}
+                          className="px-2.5 py-1 rounded-full text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors flex items-center space-x-1"
+                          title="Offboard / Remove Doctor"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Remove</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

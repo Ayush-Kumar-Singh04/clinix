@@ -90,7 +90,6 @@ export async function queueNotification(
       },
     });
 
-    // Execute synchronous processing immediately so serverless lambdas don't freeze execution
     await processSingleJob(job.id, type, recipientEmail, payload);
 
     return job;
@@ -248,6 +247,84 @@ export function getDoctorOnboardingEmailHtml({
       </div>
       <div class="footer">
         <p style="margin: 0;">This is an automated operational message from Clinix Healthcare Platform.</p>
+        <p style="margin: 4px 0 0 0;">© 2026 Clinix. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
+}
+
+export function getDoctorOffboardingEmailHtml({
+  name,
+  email,
+  specialization,
+  reason,
+  customNote,
+  actionType,
+}: {
+  name: string;
+  email: string;
+  specialization: string;
+  reason: string;
+  customNote?: string;
+  actionType?: string;
+}): string {
+  const isRetirement = actionType === "RETIREMENT" || reason.toLowerCase().includes("retire");
+  const bannerColor = isRetirement
+    ? "linear-gradient(135deg, #0EA5E9, #6366F1)"
+    : "linear-gradient(135deg, #E11D48, #9F1239)";
+
+  const title = isRetirement
+    ? `Happy Retirement & Appreciation Notice`
+    : `Official Notice: Physician Account Separation`;
+
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #0f172a; margin: 0; padding: 24px; }
+      .container { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+      .header { background: ${bannerColor}; padding: 32px 24px; text-align: center; color: white; }
+      .header h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+      .content { padding: 32px 28px; }
+      .info-card { background: #f8fafc; border-left: 4px solid ${isRetirement ? "#6366F1" : "#E11D48"}; padding: 18px; margin: 20px 0; border-radius: 8px; border: 1px solid #e2e8f0; }
+      .footer { background: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #64748b; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Clinix Healthcare</h1>
+        <p style="margin: 6px 0 0 0; opacity: 0.9; font-size: 13px;">${title}</p>
+      </div>
+      <div class="content">
+        <h2 style="margin-top: 0; font-size: 18px;">Dear Dr. ${name},</h2>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6;">
+          This is an official communication regarding your physician practitioner account and roster status in <strong>${specialization}</strong> at Clinix Healthcare.
+        </p>
+
+        <div class="info-card">
+          <p style="margin: 0 0 6px 0; font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Status Update Reason</p>
+          <p style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">${reason}</p>
+          ${customNote ? `<p style="margin: 10px 0 0 0; font-size: 13px; color: #334155; line-height: 1.5; border-top: 1px dashed #cbd5e1; padding-top: 8px;"><strong>Administrative Note:</strong><br>${customNote.replace(/\n/g, "<br>")}</p>` : ""}
+        </div>
+
+        <p style="color: #475569; font-size: 13px; line-height: 1.6;">
+          ${isRetirement
+            ? "We extend our deepest gratitude for your dedicated clinical service, patient care, and contributions to Clinix. We wish you the very best in your retirement."
+            : "Your portal access, active schedule slots, and clinic directory profile have been offboarded in accordance with clinic administrative procedures."
+          }
+        </p>
+
+        <p style="color: #64748b; font-size: 12px; margin-top: 24px;">
+          If you have any questions regarding this notice or administrative handovers, please contact the Clinix Administration Office.
+        </p>
+      </div>
+      <div class="footer">
+        <p style="margin: 0;">Clinix Healthcare Administration & Human Resources</p>
         <p style="margin: 4px 0 0 0;">© 2026 Clinix. All rights reserved.</p>
       </div>
     </div>
