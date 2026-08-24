@@ -650,7 +650,7 @@ Please sign in to configure your consultation schedule.`;
 
       {/* ADMIN FULL PHYSICIAN PROFILE DOSSIER MODAL */}
       {selectedDoctorDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/10 backdrop-blur-none animate-fadeIn">
           <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border-2 border-slate-300 ring-4 ring-black/10 space-y-5 max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
@@ -837,7 +837,7 @@ Please sign in to configure your consultation schedule.`;
 
       {/* Remove / Offboard Doctor Confirmation Modal */}
       {doctorToOffboard && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/10 backdrop-blur-none animate-fadeIn">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border-2 border-rose-300 ring-4 ring-rose-500/10 space-y-5">
             <div className="flex items-center justify-between border-b-2 border-rose-100 pb-3">
               <div className="flex items-center space-x-3 text-rose-700">

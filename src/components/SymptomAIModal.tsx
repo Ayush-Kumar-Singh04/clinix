@@ -75,7 +75,7 @@ export default function SymptomAIModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/10 backdrop-blur-none animate-fadeIn">
       <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border-2 border-slate-300 ring-4 ring-black/10 max-h-[90vh] overflow-y-auto space-y-4">
         <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
           <div className="flex items-center space-x-2.5">
