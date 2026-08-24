@@ -15,9 +15,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const validated = DoctorCreateSchema.parse(body);
 
-    const existingUser = await prisma.user.findUnique({ where: { email: validated.email } });
+    const normalizedEmail = validated.email.toLowerCase().trim();
+    const existingUser = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (existingUser) {
-      return createErrorResponse("EMAIL_EXISTS", "A user with this email already exists.", 400);
+      return createErrorResponse("EMAIL_EXISTS", `A user with the email '${normalizedEmail}' already exists in Clinix.`, 400);
     }
 
     const passwordHash = await hashPassword(validated.password);
@@ -34,11 +35,11 @@ export async function POST(req: NextRequest) {
     const doctor = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
-          email: validated.email,
-          name: validated.name,
+          email: normalizedEmail,
+          name: validated.name.trim(),
           passwordHash,
           role: "DOCTOR",
-          phone: validated.phone || null,
+          phone: validated.phone?.trim() || null,
         },
       });
 
@@ -46,9 +47,9 @@ export async function POST(req: NextRequest) {
         data: {
           userId: user.id,
           specialization: validated.specialization,
-          bio: validated.bio || null,
+          bio: validated.bio?.trim() || null,
           slotDurationMinutes: validated.slotDurationMinutes || 30,
-          avatarUrl: validated.avatarUrl || null,
+          avatarUrl: validated.avatarUrl?.trim() || null,
           workingHours: {
             create: workingHoursToCreate,
           },

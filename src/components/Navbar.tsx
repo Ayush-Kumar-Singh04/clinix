@@ -182,8 +182,16 @@ export default function Navbar() {
                 {currentUser.role}
               </span>
               <div className="flex items-center space-x-2.5 border-l-2 pl-3 border-warm-300">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-600 to-teal-500 text-white flex items-center justify-center font-bold text-xs border border-white shadow-sm">
-                  {currentUser.name.charAt(0)}
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-600 to-teal-500 text-white flex items-center justify-center font-bold text-xs border border-white shadow-sm overflow-hidden shrink-0">
+                  {currentUser.doctor?.avatarUrl || currentUser.avatarUrl ? (
+                    <img
+                      src={currentUser.doctor?.avatarUrl || currentUser.avatarUrl}
+                      alt={currentUser.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>{currentUser.name.charAt(0)}</span>
+                  )}
                 </div>
                 <span className="hidden lg:inline text-xs font-bold text-slate-800">
                   {currentUser.name}

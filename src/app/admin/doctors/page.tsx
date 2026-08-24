@@ -21,6 +21,10 @@ import {
   RefreshCw,
   Clock,
   Phone,
+  Camera,
+  Upload,
+  User,
+  Image as ImageIcon,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -39,6 +43,8 @@ export default function AdminDoctorManagementPage() {
   const [specialization, setSpecialization] = useState("Cardiology");
   const [slotDurationMinutes, setSlotDurationMinutes] = useState(30);
   const [bio, setBio] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Success Created Modal State (Credentials to convey)
@@ -47,6 +53,7 @@ export default function AdminDoctorManagementPage() {
     email: string;
     password: string;
     specialization: string;
+    avatarUrl?: string;
   } | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -78,6 +85,24 @@ export default function AdminDoctorManagementPage() {
     setPassword(`Doc_${gen}`);
   };
 
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setErrorMsg("Profile photo must be under 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      setAvatarPreview(result);
+      setAvatarUrl(result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleToggleActive = async (doctorId: string, currentStatus: boolean) => {
     try {
       const res = await fetch(`/api/admin/doctors/${doctorId}`, {
@@ -104,13 +129,14 @@ export default function AdminDoctorManagementPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
-          email,
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
           password,
           phone: phone.trim() || undefined,
           specialization,
           slotDurationMinutes: Number(slotDurationMinutes),
-          bio,
+          bio: bio.trim() || undefined,
+          avatarUrl: avatarUrl.trim() || undefined,
         }),
       });
 
@@ -125,9 +151,10 @@ export default function AdminDoctorManagementPage() {
       // Save created credentials for admin to convey to doctor
       setCreatedDoctorCreds({
         name,
-        email,
+        email: email.trim().toLowerCase(),
         password,
         specialization,
+        avatarUrl: avatarUrl || undefined,
       });
 
       setIsModalOpen(false);
@@ -135,10 +162,12 @@ export default function AdminDoctorManagementPage() {
       setEmail("");
       setPhone("");
       setBio("");
+      setAvatarUrl("");
+      setAvatarPreview(null);
       setPassword("ClinixDoctor2026!");
       fetchDoctors();
     } catch (err) {
-      setErrorMsg("Error creating doctor profile.");
+      setErrorMsg("Network error creating doctor profile.");
     } finally {
       setIsSubmitting(false);
     }
@@ -178,7 +207,7 @@ Please sign in and set up your weekly consultation availability.`;
             Doctor Staff & Appointments Directory
           </h1>
           <p className="text-xs sm:text-sm text-warm-600">
-            Appoint new physicians, configure consultation durations, manage credentials, and toggle clinic roster status.
+            Appoint new physicians, configure profile photos, consultation durations, credentials, and toggle clinic roster status.
           </p>
         </div>
 
@@ -196,78 +225,87 @@ Please sign in and set up your weekly consultation availability.`;
 
       {/* Success Modal: Credentials to Convey to Doctor */}
       {createdDoctorCreds && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-warm-950/70 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-warm-200 space-y-6">
-            <div className="flex items-center justify-between border-b border-warm-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border-2 border-slate-300 ring-4 ring-black/10 space-y-6">
+            <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
               <div className="flex items-center space-x-2.5 text-emerald-700">
-                <div className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center border border-emerald-200">
                   <Check className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-warm-900 font-serif">
+                  <h3 className="text-base font-bold text-slate-900 font-serif">
                     Doctor Account Appointed!
                   </h3>
-                  <p className="text-xs text-warm-500">
-                    Convey these login credentials to the new doctor.
+                  <p className="text-xs text-slate-500 font-sans">
+                    Credentials and onboarding email have been issued.
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setCreatedDoctorCreds(null)}
-                className="text-warm-400 hover:text-warm-600 text-xl font-bold"
+                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
               >
                 ×
               </button>
             </div>
 
             {/* Credentials Card */}
-            <div className="bg-warm-50 border border-warm-200/80 rounded-2xl p-5 space-y-3.5 font-mono text-xs text-warm-900">
-              <div className="flex justify-between items-center border-b border-warm-200/60 pb-2">
-                <span className="text-warm-500 font-sans font-semibold">Doctor Name:</span>
-                <span className="font-bold font-sans">Dr. {createdDoctorCreds.name}</span>
+            <div className="bg-slate-50 border-2 border-slate-300 rounded-2xl p-5 space-y-3.5 font-mono text-xs text-slate-900 shadow-xs">
+              <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                <span className="text-slate-500 font-sans font-semibold">Doctor Name:</span>
+                <div className="flex items-center space-x-2">
+                  {createdDoctorCreds.avatarUrl && (
+                    <img
+                      src={createdDoctorCreds.avatarUrl}
+                      alt="Doctor Photo"
+                      className="w-6 h-6 rounded-full object-cover border border-slate-300"
+                    />
+                  )}
+                  <span className="font-bold font-sans">Dr. {createdDoctorCreds.name}</span>
+                </div>
               </div>
-              <div className="flex justify-between items-center border-b border-warm-200/60 pb-2">
-                <span className="text-warm-500 font-sans font-semibold">Specialization:</span>
+              <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                <span className="text-slate-500 font-sans font-semibold">Specialization:</span>
                 <span className="bg-brand-50 text-brand-700 font-sans font-bold px-2 py-0.5 rounded-full border border-brand-200">
                   {createdDoctorCreds.specialization}
                 </span>
               </div>
-              <div className="flex justify-between items-center border-b border-warm-200/60 pb-2">
-                <span className="text-warm-500 font-sans font-semibold">Login Email:</span>
+              <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                <span className="text-slate-500 font-sans font-semibold">Login Email:</span>
                 <span className="font-bold text-brand-700">{createdDoctorCreds.email}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-warm-500 font-sans font-semibold">Password:</span>
+                <span className="text-slate-500 font-sans font-semibold">Password:</span>
                 <span className="font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-200">
                   {createdDoctorCreds.password}
                 </span>
               </div>
             </div>
 
-            <p className="text-[11px] text-warm-500 leading-relaxed">
-              The doctor can now sign in at the <strong className="text-warm-800">/doctor</strong> or <strong className="text-warm-800">/login</strong> portal using the email and password above to manage consultations and apply for leaves.
+            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+              The doctor can sign in at the <strong className="text-slate-900">/doctor</strong> or <strong className="text-slate-900">/login</strong> portal using the credentials above to configure availability slots and handle consultations.
             </p>
 
             <div className="flex items-center justify-end space-x-3 pt-2">
               <button
                 onClick={copyCredentialsToClipboard}
-                className="btn-amber !py-2.5 !px-5 text-xs flex items-center space-x-2 shadow-sm"
+                className="px-5 py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold shadow-md flex items-center space-x-2 transition-colors"
               >
                 {copied ? (
                   <>
-                    <CheckCheck className="w-4 h-4 text-emerald-300" />
+                    <CheckCheck className="w-4 h-4 text-emerald-400" />
                     <span>Credentials Copied!</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-4 h-4 text-amber-300" />
                     <span>Copy Credentials to Send</span>
                   </>
                 )}
               </button>
               <button
                 onClick={() => setCreatedDoctorCreds(null)}
-                className="px-5 py-2.5 bg-warm-100 hover:bg-warm-200 text-warm-800 rounded-full font-bold text-xs transition-colors"
+                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold text-xs transition-colors"
               >
                 Done
               </button>
@@ -301,8 +339,16 @@ Please sign in and set up your weekly consultation availability.`;
                   <tr key={doc.id} className="hover:bg-warm-50/50 transition-colors">
                     <td className="p-4">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-500 text-white font-bold flex items-center justify-center shadow-sm">
-                          {doc.user.name.charAt(0)}
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-500 text-white font-bold flex items-center justify-center shadow-sm overflow-hidden shrink-0 border border-slate-200">
+                          {doc.avatarUrl ? (
+                            <img
+                              src={doc.avatarUrl}
+                              alt={doc.user.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span>{doc.user.name.charAt(0)}</span>
+                          )}
                         </div>
                         <div>
                           <div className="font-bold text-sm text-warm-900 font-serif">
@@ -381,7 +427,7 @@ Please sign in and set up your weekly consultation availability.`;
                     Appoint New Doctor
                   </h3>
                   <p className="text-[11px] text-slate-500 font-sans">
-                    Register physician credentials to the clinic staff directory.
+                    Register physician credentials & profile to the clinic directory.
                   </p>
                 </div>
               </div>
@@ -394,13 +440,69 @@ Please sign in and set up your weekly consultation availability.`;
             </div>
 
             {errorMsg && (
-              <div className="p-3.5 bg-rose-50 border-2 border-rose-300 text-rose-700 text-xs font-bold rounded-2xl flex items-center gap-2">
+              <div className="p-3.5 bg-rose-50 border-2 border-rose-300 text-rose-700 text-xs font-bold rounded-2xl flex items-center gap-2 animate-fadeIn">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
             <form onSubmit={handleCreateDoctor} className="space-y-4 text-xs">
+              {/* Profile Photo Upload Section */}
+              <div className="bg-slate-50 p-3.5 rounded-2xl border-2 border-slate-300 space-y-2">
+                <label className="font-bold text-slate-900 uppercase tracking-wider flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Camera className="w-4 h-4 text-brand-600" />
+                    Doctor Profile Photo (Optional)
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium font-sans">Shows in Navbar & Directory</span>
+                </label>
+
+                <div className="flex items-center space-x-3.5">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-200 border-2 border-slate-300 flex items-center justify-center overflow-hidden shrink-0">
+                    {avatarPreview ? (
+                      <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-6 h-6 text-slate-400" />
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-1.5">
+                    <label className="cursor-pointer inline-flex items-center space-x-1.5 px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-800 border-2 border-slate-300 rounded-xl text-[11px] font-bold shadow-xs transition-colors">
+                      <Upload className="w-3.5 h-3.5 text-brand-600" />
+                      <span>Upload Photo File</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                    </label>
+                    {avatarPreview && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAvatarPreview(null);
+                          setAvatarUrl("");
+                        }}
+                        className="ml-2 text-[11px] font-bold text-rose-600 hover:text-rose-700"
+                      >
+                        Remove
+                      </button>
+                    )}
+                    <input
+                      type="text"
+                      placeholder="Or paste image URL (https://...)"
+                      value={avatarUrl}
+                      onChange={(e) => {
+                        setAvatarUrl(e.target.value);
+                        setAvatarPreview(e.target.value || null);
+                      }}
+                      className="w-full p-2 border border-slate-300 bg-white rounded-lg text-xs font-mono text-slate-800 outline-none focus:border-slate-900"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block font-bold text-slate-800 uppercase tracking-wider mb-1.5">
                   Doctor Full Name *
