@@ -64,6 +64,19 @@ export default function DoctorDetailPage() {
   // Handle Slot Click (Triggers Temporary Hold)
   const handleHoldSlot = async (slot: any) => {
     setBookingError("");
+
+    // If clicking the same slot already held by this patient, simply reopen modal
+    if (selectedSlot?.startTime === slot.startTime && holdToken) {
+      setIsModalOpen(true);
+      return;
+    }
+
+    // Immediately reflect dark selected state in UI
+    setSelectedSlot({
+      ...slot,
+      holdToken: holdToken || null,
+      holdExpiresAt: selectedSlot?.holdExpiresAt || null,
+    });
     setIsHoldLoading(true);
 
     try {
@@ -74,6 +87,7 @@ export default function DoctorDetailPage() {
           doctorId,
           date: selectedDate,
           startTime: slot.startTime,
+          holdToken: holdToken || undefined,
         }),
       });
 

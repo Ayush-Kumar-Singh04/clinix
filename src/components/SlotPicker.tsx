@@ -78,10 +78,10 @@ export default function SlotPicker({
           const isConfirmed = slot.status === "CONFIRMED";
           const isHeldByOther = slot.status === "HELD" && !slot.isCurrentHold && !isSelected;
 
-          let btnClass = "border-slate-200 bg-white text-slate-800 hover:border-brand-500 hover:bg-brand-50";
+          let btnClass = "border-slate-200 bg-white text-slate-800 hover:border-slate-900 hover:bg-slate-50";
 
           if (isSelected) {
-            btnClass = "border-brand-600 bg-brand-600 text-white shadow-md shadow-brand-500/20 ring-2 ring-brand-300";
+            btnClass = "border-slate-900 bg-slate-900 text-white shadow-xl shadow-slate-900/30 ring-2 ring-slate-900/40 scale-[1.03]";
           } else if (isConfirmed) {
             btnClass = "border-slate-100 bg-slate-100 text-slate-400 cursor-not-allowed";
           } else if (isHeldByOther) {
@@ -91,20 +91,20 @@ export default function SlotPicker({
           return (
             <button
               key={slot.startTime}
-              disabled={isConfirmed || isHeldByOther || isLoadingHold}
+              disabled={isConfirmed || isHeldByOther || (isLoadingHold && !isSelected)}
               onClick={() => onHoldSlot(slot)}
-              className={`relative p-3 rounded-xl border text-sm font-semibold flex flex-col items-center justify-center transition-all ${btnClass}`}
+              className={`relative p-3.5 rounded-2xl border text-sm font-semibold flex flex-col items-center justify-center transition-all duration-200 ${btnClass}`}
             >
               <div className="flex items-center space-x-1.5">
-                <Clock className="w-3.5 h-3.5 opacity-80" />
-                <span>{formatTime(slot.startTime)}</span>
+                <Clock className={`w-3.5 h-3.5 ${isSelected ? "text-amber-300" : "opacity-70"}`} />
+                <span className="font-mono tracking-tight">{formatTime(slot.startTime)}</span>
               </div>
-              <span className="text-[10px] opacity-75 font-normal">
-                {isConfirmed ? "Booked" : isHeldByOther ? "Held" : isSelected ? "Held (You)" : "Available"}
+              <span className={`text-[10px] font-medium mt-0.5 ${isSelected ? "text-amber-200" : "opacity-70"}`}>
+                {isConfirmed ? "Booked" : isHeldByOther ? "Held" : isSelected ? "Selected" : "Available"}
               </span>
 
-              {isConfirmed && <Lock className="absolute top-1.5 right-1.5 w-3 h-3 text-slate-400" />}
-              {isSelected && <Check className="absolute top-1.5 right-1.5 w-3.5 h-3.5 text-white" />}
+              {isConfirmed && <Lock className="absolute top-2 right-2 w-3 h-3 text-slate-400" />}
+              {isSelected && <Check className="absolute top-2 right-2 w-3.5 h-3.5 text-amber-300" />}
             </button>
           );
         })}

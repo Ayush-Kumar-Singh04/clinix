@@ -55,6 +55,7 @@ export const HoldSlotSchema = z.object({
   doctorId: z.string().uuid("Invalid Doctor ID"),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format YYYY-MM-DD"),
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid start time format"),
+  holdToken: z.string().optional(),
 });
 
 export const BookAppointmentSchema = z.object({

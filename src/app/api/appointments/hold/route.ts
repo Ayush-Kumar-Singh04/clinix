@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const validated = HoldSlotSchema.parse(body);
-    const { doctorId, date, startTime } = validated;
+    const { doctorId, date, startTime, holdToken: clientHoldToken } = validated;
 
     const doctor = await prisma.doctor.findUnique({
       where: { id: doctorId },
@@ -48,7 +48,6 @@ export async function POST(req: NextRequest) {
     const now = new Date();
     const holdDurationMinutes = 5;
     const holdExpiresAt = new Date(now.getTime() + holdDurationMinutes * 60 * 1000);
-    const holdToken = crypto.randomUUID();
 
     // Check existing slot in DB
     const existingSlot = await prisma.appointmentSlot.findUnique({
@@ -61,15 +60,23 @@ export async function POST(req: NextRequest) {
       if (existingSlot.status === "CONFIRMED") {
         return createErrorResponse("SLOT_ALREADY_BOOKED", "This slot is already booked", 409);
       }
+      // If slot is held by ANOTHER user with a different active hold token
       if (
         existingSlot.status === "HELD" &&
         existingSlot.holdExpiresAt &&
         existingSlot.holdExpiresAt > now &&
-        existingSlot.holdToken !== holdToken
+        clientHoldToken &&
+        existingSlot.holdToken &&
+        existingSlot.holdToken !== clientHoldToken
       ) {
         return createErrorResponse("SLOT_HELD", "This slot is currently held by another user", 409);
       }
     }
+
+    // Reuse existing token if matching, or generate new token
+    const holdToken = clientHoldToken && existingSlot?.holdToken === clientHoldToken
+      ? clientHoldToken
+      : crypto.randomUUID();
 
     // Upsert the slot to HELD
     const slot = await prisma.appointmentSlot.upsert({
