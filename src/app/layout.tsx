@@ -4,8 +4,13 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Clinix",
-  description: "Clinix Healthcare Platform",
+  title: "Clinix — Smart Healthcare & Appointment Platform",
+  description: "Clinix Healthcare Platform — Intelligent Doctor Consultations, AI Triage, and Scheduling",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

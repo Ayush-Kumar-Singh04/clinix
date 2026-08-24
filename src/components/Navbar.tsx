@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { LogOut, ArrowRight } from "lucide-react";
+import Logo from "./Logo";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -47,10 +48,8 @@ export default function Navbar() {
         
         {/* Left Side: Brand Logo (Aligned Left) */}
         <div className="flex-1 flex items-center justify-start">
-          <Link href="/" className="flex items-center space-x-2 group">
-            <span className="font-serif text-2xl tracking-tight text-warm-900 group-hover:text-brand-600 transition-colors">
-              Clinix
-            </span>
+          <Link href="/" className="group inline-flex items-center">
+            <Logo size={32} />
           </Link>
         </div>
 

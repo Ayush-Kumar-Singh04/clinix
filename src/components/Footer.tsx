@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
+import Logo from "./Logo";
 
 export default function Footer() {
   const pathname = usePathname();
@@ -90,8 +91,8 @@ export default function Footer() {
       <div className="bg-cream border-t border-warm-200/60 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Brand */}
-          <Link href="/" className="font-serif text-xl text-warm-900 tracking-tight">
-            Clinix
+          <Link href="/" className="group inline-flex items-center">
+            <Logo size={28} wordmarkClassName="!text-xl" />
           </Link>
 
           {/* Nav Links */}
